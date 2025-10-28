@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Building2, 
-  MapPin, 
-  Phone, 
+import {
+  Building2,
+  MapPin,
+  Phone,
   Mail,
   Plus,
   Users,
-  Activity
+  Activity,
+  Search
 } from "lucide-react";
 import { getLGUs } from "@/lib/api/lgu";
 import { LGU } from "@/types/lgu";
@@ -130,12 +131,15 @@ export default function LGUPage() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search LGUs by name, municipality, or province..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
-        />
+        <div className="relative max-w-md">
+          <Input
+            placeholder="Search LGUs by name, municipality, or province..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pr-9"
+          />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
         <div className="text-sm text-muted-foreground">
           {filteredLGUs.length} LGU{filteredLGUs.length !== 1 ? "s" : ""} found
         </div>

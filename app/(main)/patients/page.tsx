@@ -15,7 +15,7 @@ import {
 import { getPatients } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { Patient } from "@/types/patient";
-import { Plus, Search } from "lucide-react";
+import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -93,14 +93,14 @@ export default function PatientsPage() {
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-md">
         <Input
           placeholder="Search by patient ID, name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-md"
+          className="pr-9"
         />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
 
       <div className="rounded-md border">
@@ -126,7 +126,11 @@ export default function PatientsPage() {
               </TableRow>
             ) : (
               filteredPatients.map((patient) => (
-                <TableRow key={patient.id}>
+                <TableRow
+                  key={patient.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => window.location.href = `/patients/${patient.id}`}
+                >
                   <TableCell className="font-medium">{patient.patientId}</TableCell>
                   <TableCell>
                     {patient.firstName} {patient.middleName} {patient.lastName}
@@ -138,12 +142,28 @@ export default function PatientsPage() {
                   <TableCell>
                     <StatusBadge status={patient.status} />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/patients/${patient.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Profile
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/patients/${patient.id}/edit`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit patient</span>
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Implement delete functionality
+                          console.log(`Delete patient ${patient.id}`);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete patient</span>
                       </Button>
-                    </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

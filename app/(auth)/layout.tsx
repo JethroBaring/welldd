@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
             <Image
-              src="/teal-logo.png"
+              src="/fullname-teal-logo.png"
               alt="Logo"
               width={90}
               height={45}

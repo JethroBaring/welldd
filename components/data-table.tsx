@@ -34,6 +34,7 @@ import {
   IconPlus,
   IconTrendingUp,
 } from "@tabler/icons-react"
+import { Edit, Trash2, Copy, Star } from "lucide-react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -299,12 +300,24 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
+        <DropdownMenuContent align="end" className="w-auto">
+          <DropdownMenuItem>
+            <Edit className="h-4 w-4" />
+            <span className="sr-only">Edit</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Copy className="h-4 w-4" />
+            <span className="sr-only">Make a copy</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Star className="h-4 w-4" />
+            <span className="sr-only">Favorite</span>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Delete</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),

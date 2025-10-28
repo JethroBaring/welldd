@@ -88,6 +88,7 @@ export interface TransferOut {
 export interface StockAdjustment {
   id: string;
   adjustmentNumber: string;
+  itemCode: string;
   date: Date;
   type: "physical_count" | "damage" | "expired" | "correction" | "other";
   itemId: string;

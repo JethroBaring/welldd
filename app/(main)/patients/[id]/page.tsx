@@ -17,7 +17,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { getPatientById, getMedicalRecordsByPatient } from "@/lib/api";
 import { Patient, MedicalRecord } from "@/types/patient";
 import { format } from "date-fns";
-import { ArrowLeft, Plus, FileText } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -225,8 +225,9 @@ export default function PatientDetailPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Link href={`/patients/${patient.id}/records/${record.id}`}>
-                        <Button variant="outline" size="sm">
-                          View
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View medical record</span>
                         </Button>
                       </Link>
                     </TableCell>

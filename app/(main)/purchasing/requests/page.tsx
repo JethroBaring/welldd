@@ -16,7 +16,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { getPurchaseRequests } from "@/lib/api";
 import { PurchaseRequest } from "@/types/purchasing";
 import { format } from "date-fns";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -94,14 +94,14 @@ export default function PurchaseRequestsPage() {
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-md">
         <Input
           placeholder="Search by PR number, department, or requester..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-md"
+          className="pr-9"
         />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
 
       <div className="rounded-md border">
@@ -127,7 +127,11 @@ export default function PurchaseRequestsPage() {
               </TableRow>
             ) : (
               filteredRequests.map((request) => (
-                <TableRow key={request.id}>
+                <TableRow
+                  key={request.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => window.location.href = `/purchasing/requests/${request.id}`}
+                >
                   <TableCell className="font-medium">{request.prNumber}</TableCell>
                   <TableCell>{format(new Date(request.date), "MMM dd, yyyy")}</TableCell>
                   <TableCell>{request.requestingDepartment}</TableCell>
@@ -137,12 +141,28 @@ export default function PurchaseRequestsPage() {
                   <TableCell>
                     <StatusBadge status={request.status} />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/purchasing/requests/${request.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Details
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/purchasing/requests/${request.id}/edit`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit request</span>
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Implement delete functionality
+                          console.log(`Delete purchase request ${request.id}`);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete request</span>
                       </Button>
-                    </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

@@ -101,57 +101,57 @@ const navData = {
     },
     {
       title: "Patients",
-      url: "#",
+      url: "/patients",
       icon: IconUsers,
       roles: ["super_admin", "medical_staff", "admin_staff"],
-      items: [
-        {
-          title: "Patient List",
-          url: "/patients",
-          roles: ["super_admin", "medical_staff", "admin_staff"],
-        },
-        {
-          title: "Scan Documents",
-          url: "/patients/scan",
-          roles: ["super_admin", "medical_staff", "admin_staff"],
-        },
-      ],
+      // items: [
+      //   {
+      //     title: "Patient List",
+      //     url: "/patients",
+      //     roles: ["super_admin", "medical_staff", "admin_staff"],
+      //   },
+      //   {
+      //     title: "Scan Documents",
+      //     url: "/patients/scan",
+      //     roles: ["super_admin", "medical_staff", "admin_staff"],
+      //   },
+      // ],
     },
-    {
-      title: "Suppliers",
-      url: "/suppliers",
-      icon: IconBuilding,
-      roles: ["super_admin", "gso_staff", "admin_staff"],
-    },
-    {
-      title: "LGU Management",
-      url: "/lgu",
-      icon: IconUsers,
-      roles: ["super_admin", "admin_staff"],
-    },
-    {
-      title: "Reports",
-      url: "#",
-      icon: IconFileText,
-      roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
-      items: [
-        {
-          title: "Inventory Reports",
-          url: "/reports/inventory",
-          roles: ["super_admin", "gso_staff", "admin_staff"],
-        },
-        {
-          title: "Medical Reports",
-          url: "/reports/medical",
-          roles: ["super_admin", "medical_staff", "admin_staff"],
-        },
-        {
-          title: "Custom Reports",
-          url: "/reports/custom",
-          roles: ["super_admin", "admin_staff"],
-        },
-      ],
-    },
+    // {
+    //   title: "Suppliers",
+    //   url: "/suppliers",
+    //   icon: IconBuilding,
+    //   roles: ["super_admin", "gso_staff", "admin_staff"],
+    // },
+    // {
+    //   title: "LGU Management",
+    //   url: "/lgu",
+    //   icon: IconUsers,
+    //   roles: ["super_admin", "admin_staff"],
+    // },
+    // {
+    //   title: "Reports",
+    //   url: "#",
+    //   icon: IconFileText,
+    //   roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
+    //   items: [
+    //     {
+    //       title: "Inventory Reports",
+    //       url: "/reports/inventory",
+    //       roles: ["super_admin", "gso_staff", "admin_staff"],
+    //     },
+    //     {
+    //       title: "Medical Reports",
+    //       url: "/reports/medical",
+    //       roles: ["super_admin", "medical_staff", "admin_staff"],
+    //     },
+    //     {
+    //       title: "Custom Reports",
+    //       url: "/reports/custom",
+    //       roles: ["super_admin", "admin_staff"],
+    //     },
+    //   ],
+    // },
   ],
   navSecondary: [
     {
@@ -163,7 +163,7 @@ const navData = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { currentRole, setRole } = useAuthStore();
+  const { currentRole } = useAuthStore();
   const validRoles = ["super_admin", "gso_staff", "medical_staff", "admin_staff"] as const;
 
   // Effective role from localStorage with fallback to store
@@ -174,23 +174,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       const storedRole = (typeof window !== 'undefined' ? window.localStorage.getItem('role') : null) as UserRole | null;
       if (storedRole && (validRoles as readonly string[]).includes(storedRole)) {
         setEffectiveRole(storedRole);
-        if (storedRole !== currentRole) setRole(storedRole);
       } else {
-        // Persist current role if nothing stored
-        if (typeof window !== 'undefined') window.localStorage.setItem('role', currentRole);
         setEffectiveRole(currentRole);
       }
-    } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Keep localStorage in sync when role changes elsewhere
-  React.useEffect(() => {
-    setEffectiveRole(currentRole);
-    try {
-      if (typeof window !== 'undefined') window.localStorage.setItem('role', currentRole);
-    } catch {}
+    } catch {
+      setEffectiveRole(currentRole);
+    }
   }, [currentRole]);
+
+  // Update when localStorage role is changed in another tab or code
+  React.useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'role') {
+        const val = e.newValue as UserRole | null;
+        if (val && (validRoles as readonly string[]).includes(val)) {
+          setEffectiveRole(val);
+        }
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   // Filter navigation items based on current role
   const filterNavByRole = (items: any[]): any[] => {

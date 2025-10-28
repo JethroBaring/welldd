@@ -6,3 +6,5 @@ export * from "./inventory";
 export * from "./patients";
 export * from "./users";
 export * from "./lgu";
+export * from "./transfer-outs";
+export * from "./adjustments";

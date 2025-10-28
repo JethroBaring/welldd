@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { getInventoryItems } from "@/lib/api";
 import { InventoryItem } from "@/types/inventory";
-import { Search, AlertTriangle } from "lucide-react";
+import { Search, AlertTriangle, Edit, Trash2, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -80,16 +80,22 @@ export default function InventoryItemsPage() {
             View and manage medicine and supply inventory
           </p>
         </div>
+        <Link href="/inventory/items/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Item
+          </Button>
+        </Link>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-md">
         <Input
           placeholder="Search by item name, code, or category..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-md"
+          className="pr-9"
         />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
 
       <div className="rounded-md border">
@@ -116,7 +122,11 @@ export default function InventoryItemsPage() {
               </TableRow>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => window.location.href = `/inventory/items/${item.id}`}
+                >
                   <TableCell className="font-medium">{item.itemCode}</TableCell>
                   <TableCell>{item.itemName}</TableCell>
                   <TableCell>{item.category}</TableCell>
@@ -138,12 +148,28 @@ export default function InventoryItemsPage() {
                   <TableCell>
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/inventory/items/${item.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Details
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/inventory/items/${item.id}/edit`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit item</span>
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Implement delete functionality
+                          console.log(`Delete inventory item ${item.id}`);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete item</span>
                       </Button>
-                    </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

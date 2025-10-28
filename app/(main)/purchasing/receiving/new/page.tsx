@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,21 @@ import { PurchaseOrder } from "@/types/purchasing";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NewWarehouseReceivingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto py-6">
+          <Skeleton className="h-10 w-64 mb-6" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      }
+    >
+      <ReceivingPageInner />
+    </Suspense>
+  );
+}
+
+function ReceivingPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const poId = searchParams.get("po");

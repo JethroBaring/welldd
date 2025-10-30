@@ -2,13 +2,15 @@ import {
   PurchaseRequest, 
   PurchaseOrder, 
   WarehouseReceivingReport,
-  Supplier 
+  Supplier,
+  PurchaseInvoice
 } from "@/types/purchasing";
 import {
   mockPurchaseRequests,
   mockPurchaseOrders,
   mockWarehouseReceivingReports,
   mockSuppliers,
+  mockPurchaseInvoices,
 } from "@/lib/mock-data";
 
 // Simulate API delay
@@ -175,6 +177,12 @@ export async function completeWarehouseReceiving(id: string): Promise<WarehouseR
 export async function getSuppliers(): Promise<Supplier[]> {
   await delay();
   return mockSuppliers;
+}
+
+// Purchase Invoices
+export async function getPurchaseInvoices(): Promise<PurchaseInvoice[]> {
+  await delay();
+  return mockPurchaseInvoices;
 }
 
 export async function getSupplierById(id: string): Promise<Supplier | null> {

@@ -1,6 +1,7 @@
 export type PRStatus = "draft" | "pending" | "approved" | "denied" | "completed";
 export type POStatus = "draft" | "pending" | "approved" | "sent" | "completed";
 export type WRRStatus = "pending" | "receiving" | "completed" | "discrepancy";
+export type PIStatus = "draft" | "posted" | "void" | "partial" | "paid";
 
 export interface PRItem {
   id: string;
@@ -104,6 +105,23 @@ export interface WarehouseReceivingReport {
   hasDiscrepancy: boolean;
   discrepancyNotes?: string;
   remarks?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PurchaseInvoice {
+  id: string;
+  piNumber: string; // PI No.
+  date: Date; // PI Date
+  dueDate: Date; // PI Due Date
+  status: PIStatus | string; // allow arbitrary for flexibility
+  cvStatus: string; // check voucher status
+  supplier: Supplier;
+  refNumber?: string; // Ref No.
+  poNumber?: string; // PO No.
+  amountDue: number; // Amount Due
+  createdBy: string;
+  approver?: string; // Approver
   createdAt: Date;
   updatedAt: Date;
 }

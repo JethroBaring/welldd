@@ -1,33 +1,35 @@
 "use client";
 
 import {
-    IconBox,
-    IconBuilding,
-    IconClipboardList,
-    IconDashboard,
-    IconFileText,
-    IconPackage,
-    IconSettings,
-    IconShoppingCart,
-    IconTransfer,
-    IconUsers
+  IconActivity,
+  IconBox,
+  IconBuilding,
+  IconClipboardList,
+  IconDashboard,
+  IconFileText,
+  IconPackage,
+  IconSettings,
+  IconShoppingCart,
+  IconTransfer,
+  IconUserCog,
+  IconUsers,
 } from "@tabler/icons-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useAuthStore } from "@/stores/authStore";
 import { UserRole } from "@/types/user";
@@ -49,7 +51,7 @@ const navData = {
       roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
     },
     {
-      title: "Purchasing",
+      title: "Procurement",
       url: "#",
       icon: IconShoppingCart,
       roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
@@ -65,9 +67,9 @@ const navData = {
           roles: ["super_admin", "gso_staff", "admin_staff"],
         },
         {
-          title: "Receiving",
-          url: "/purchasing/receiving",
-          roles: ["super_admin", "gso_staff"],
+          title: "Purchase Invoice",
+          url: "/purchasing/invoices",
+          roles: ["super_admin", "gso_staff", "admin_staff"],
         },
       ],
     },
@@ -88,13 +90,38 @@ const navData = {
           roles: ["super_admin", "gso_staff"],
         },
         {
-          title: "Transfer Out",
-          url: "/inventory/transfer",
+          title: "Stock Issuance",
+          url: "/inventory/issuance",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Deliveries",
+          url: "/inventory/deliveries",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Stock Issuance Receiving",
+          url: "/inventory/issuance-receiving",
           roles: ["super_admin", "gso_staff"],
         },
         {
           title: "Adjustments",
           url: "/inventory/adjustments",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Warehouse Receiving",
+          url: "/inventory/receiving",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Stock Monitoring",
+          url: "/inventory/monitoring",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Inventory Movement",
+          url: "/inventory/movement",
           roles: ["super_admin", "gso_staff"],
         },
       ],
@@ -117,41 +144,53 @@ const navData = {
       //   },
       // ],
     },
-    // {
-    //   title: "Suppliers",
-    //   url: "/suppliers",
-    //   icon: IconBuilding,
-    //   roles: ["super_admin", "gso_staff", "admin_staff"],
-    // },
-    // {
-    //   title: "LGU Management",
-    //   url: "/lgu",
-    //   icon: IconUsers,
-    //   roles: ["super_admin", "admin_staff"],
-    // },
-    // {
-    //   title: "Reports",
-    //   url: "#",
-    //   icon: IconFileText,
-    //   roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
-    //   items: [
-    //     {
-    //       title: "Inventory Reports",
-    //       url: "/reports/inventory",
-    //       roles: ["super_admin", "gso_staff", "admin_staff"],
-    //     },
-    //     {
-    //       title: "Medical Reports",
-    //       url: "/reports/medical",
-    //       roles: ["super_admin", "medical_staff", "admin_staff"],
-    //     },
-    //     {
-    //       title: "Custom Reports",
-    //       url: "/reports/custom",
-    //       roles: ["super_admin", "admin_staff"],
-    //     },
-    //   ],
-    // },
+    {
+      title: "Disease Surveillance",
+      url: "/surveillance",
+      icon: IconActivity,
+      roles: ["super_admin", "medical_staff", "admin_staff"],
+    },
+    {
+      title: "Suppliers",
+      url: "/suppliers",
+      icon: IconBuilding,
+      roles: ["super_admin", "gso_staff", "admin_staff"],
+    },
+    {
+      title: "User Management",
+      url: "/users",
+      icon: IconUserCog,
+      roles: ["super_admin"],
+    },
+    {
+      title: "LGU Management",
+      url: "/lgu",
+      icon: IconUsers,
+      roles: ["super_admin", "admin_staff"],
+    },
+    {
+      title: "Reports",
+      url: "/reports",
+      icon: IconFileText,
+      roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
+      items: [
+        {
+          title: "Inventory Reports",
+          url: "/reports/inventory",
+          roles: ["super_admin", "gso_staff", "admin_staff"],
+        },
+        {
+          title: "Medical Reports",
+          url: "/reports/medical",
+          roles: ["super_admin", "medical_staff", "admin_staff"],
+        },
+        {
+          title: "Custom Reports",
+          url: "/reports/custom",
+          roles: ["super_admin", "admin_staff"],
+        },
+      ],
+    },
   ],
   navSecondary: [
     {
@@ -164,15 +203,28 @@ const navData = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentRole } = useAuthStore();
-  const validRoles = ["super_admin", "gso_staff", "medical_staff", "admin_staff"] as const;
+  const validRoles = [
+    "super_admin",
+    "gso_staff",
+    "medical_staff",
+    "admin_staff",
+  ] as const;
 
   // Effective role from localStorage with fallback to store
-  const [effectiveRole, setEffectiveRole] = React.useState<UserRole>(currentRole);
+  const [effectiveRole, setEffectiveRole] =
+    React.useState<UserRole>(currentRole);
 
   React.useEffect(() => {
     try {
-      const storedRole = (typeof window !== 'undefined' ? window.localStorage.getItem('role') : null) as UserRole | null;
-      if (storedRole && (validRoles as readonly string[]).includes(storedRole)) {
+      const storedRole = (
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("role")
+          : null
+      ) as UserRole | null;
+      if (
+        storedRole &&
+        (validRoles as readonly string[]).includes(storedRole)
+      ) {
         setEffectiveRole(storedRole);
       } else {
         setEffectiveRole(currentRole);
@@ -185,15 +237,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Update when localStorage role is changed in another tab or code
   React.useEffect(() => {
     const handler = (e: StorageEvent) => {
-      if (e.key === 'role') {
+      if (e.key === "role") {
         const val = e.newValue as UserRole | null;
         if (val && (validRoles as readonly string[]).includes(val)) {
           setEffectiveRole(val);
         }
       }
     };
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, []);
 
   // Filter navigation items based on current role

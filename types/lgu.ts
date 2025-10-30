@@ -1,3 +1,10 @@
+export interface Barangay {
+  id: string;
+  name: string;
+  population?: number;
+  zipCode?: string;
+}
+
 export interface LGU {
   id: string;
   code: string;
@@ -5,7 +12,7 @@ export interface LGU {
   region: string;
   province: string;
   municipality: string;
-  barangays: string[];
+  barangays: Barangay[];
   contactInformation: {
     address: string;
     phone: string;
@@ -64,4 +71,3 @@ export type UserRole =
   | "gso_staff"
   | "medical_staff"
   | "admin_staff";
-

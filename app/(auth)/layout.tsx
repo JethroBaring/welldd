@@ -1,4 +1,5 @@
 import Image from "next/image";
+import "./auth.css";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,9 +10,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <Image
               src="/fullname-teal-logo.png"
               alt="Logo"
-              width={90}
-              height={45}
+              width={1000}
+              height={1000}
               style={{ borderRadius: "8px", objectFit: "cover" }}
+              className="w-32"
             />
           </a>
         </div>
@@ -22,42 +24,53 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <div className="hidden lg:flex h-full w-full items-center justify-center bg-gray-900 relative">
-          {/* Radial Gradient Background - Optimized Mid-Tone Colors */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              // Balanced colors: lighter than the first suggestion, but darker than the last
-              background: 'radial-gradient(circle at center, #3ba6b8 0%, #297a8a 50%, #1e5c6a 100%)'
-            }}
-          ></div>
+        <div className="hero-container">
+          <div className="graphic-wrapper">
+            <div className="cross">
+              <div className="cross-horizontal"></div>
+              <div className="cross-vertical"></div>
+            </div>
 
-          {/* Abstract Connections/Grid Pattern */}
-          <div className="absolute inset-0 z-10 opacity-30">
-            <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-                  {/* Subtle line color that works well against the mid-tone background */}
-                  <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#68b8cc" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
+            <div className="record record-1">
+              <div className="record-line"></div>
+              <div className="record-line"></div>
+              <div className="record-line"></div>
+              <div className="record-line"></div>
+            </div>
+
+            <div className="clipboard">
+              <div className="clipboard-clip"></div>
+              <div className="clipboard-line"></div>
+              <div className="clipboard-line"></div>
+              <div className="clipboard-line"></div>
+            </div>
+
+            <div className="record record-3">
+              <div className="record-line"></div>
+              <div className="record-line"></div>
+              <div className="record-line"></div>
+            </div>
+
+            <div className="thermometer">
+              <div className="thermometer-tube">
+                <div className="thermometer-mercury"></div>
+              </div>
+              <div className="thermometer-bulb"></div>
+            </div>
+
+            <div className="circle"></div>
+
+            <div className="pill">
+              <div className="pill-half"></div>
+              <div className="pill-border"></div>
+            </div>
+
+            <svg className="heartbeat" viewBox="0 0 120 60">
+              <polyline
+                className="heartbeat-line"
+                points="0,30 20,30 25,10 30,50 35,20 40,30 120,30"
+              />
             </svg>
-          </div>
-
-          {/* Logo and Text Overlay - Centered on the Background */}
-          <div className="z-20 flex flex-col items-center justify-center text-white gap-2">
-            {/* Text colors are set to white/light teal for contrast */}
-            <Image
-              src="/white-logo.png"
-              alt="Logo"
-              width={120}
-              height={60}
-              style={{ borderRadius: "8px", objectFit: "cover" }}
-            />
-            <p className="mt-2 max-w-sm text-center text-white">
-              Internal Inventory & Medical Record System
-            </p>
           </div>
         </div>
       </div>

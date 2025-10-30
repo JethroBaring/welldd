@@ -12,7 +12,7 @@ import { mockStockAdjustments } from "@/lib/mock-data/adjustments";
 import { StockAdjustment } from "@/types/inventory";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { AdjustmentTypeBadge } from "@/components/shared/adjustment-type-badge";
 
 export default function InventoryAdjustmentsPage() {
   const [adjustments, setAdjustments] = useState<StockAdjustment[]>([]);
@@ -60,20 +60,7 @@ export default function InventoryAdjustmentsPage() {
     setFilteredAdjustments(filtered);
   };
 
-  const getAdjustmentTypeBadge = (type: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      physical_count: "default",
-      damage: "destructive",
-      expired: "destructive",
-      correction: "secondary",
-      other: "outline"
-    };
-    return variants[type] || "outline";
-  };
-
-  const formatAdjustmentType = (type: string) => {
-    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
+  // Badge rendering moved to reusable component
 
   if (loading) {
     return (
@@ -143,9 +130,7 @@ export default function InventoryAdjustmentsPage() {
                   <TableCell className="font-medium">{adjustment.adjustmentNumber}</TableCell>
                   <TableCell>{format(new Date(adjustment.date), "MMM dd, yyyy")}</TableCell>
                   <TableCell>
-                    <Badge variant={getAdjustmentTypeBadge(adjustment.type)}>
-                      {formatAdjustmentType(adjustment.type)}
-                    </Badge>
+                    <AdjustmentTypeBadge type={adjustment.type} />
                   </TableCell>
                   <TableCell>
                     <div>

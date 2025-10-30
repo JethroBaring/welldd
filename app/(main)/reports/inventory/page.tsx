@@ -39,6 +39,88 @@ interface InventoryReport {
   dataSource: string;
 }
 
+interface InventoryReportData {
+  id: string;
+  itemCode: string;
+  itemName: string;
+  batchNumber: string;
+  quantity: number;
+  unit: string;
+  supplier?: string;
+  expiryDate?: Date;
+  receivedDate?: Date;
+  department?: string;
+  status: string;
+}
+
+const mockInventoryReportData: InventoryReportData[] = [
+  {
+    id: "inv-data-001",
+    itemCode: "PAR001",
+    itemName: "Paracetamol 500mg",
+    batchNumber: "BATCH001",
+    quantity: 1000,
+    unit: "Tablets",
+    supplier: "MediCare Pharma",
+    expiryDate: new Date("2025-12-31"),
+    receivedDate: new Date("2024-10-15"),
+    department: "Pharmacy",
+    status: "Active",
+  },
+  {
+    id: "inv-data-002",
+    itemCode: "IBU002",
+    itemName: "Ibuprofen 400mg",
+    batchNumber: "BATCH002",
+    quantity: 500,
+    unit: "Tablets",
+    supplier: "HealthPlus Corp",
+    expiryDate: new Date("2025-08-15"),
+    receivedDate: new Date("2024-10-10"),
+    department: "Pharmacy",
+    status: "Active",
+  },
+  {
+    id: "inv-data-003",
+    itemCode: "AME003",
+    itemName: "Amoxicillin 250mg",
+    batchNumber: "BATCH003",
+    quantity: 200,
+    unit: "Capsules",
+    supplier: "BioMed Supplies",
+    expiryDate: new Date("2024-11-30"),
+    receivedDate: new Date("2024-09-20"),
+    department: "Emergency",
+    status: "Expiring",
+  },
+  {
+    id: "inv-data-004",
+    itemCode: "OME004",
+    itemName: "Omeprazole 20mg",
+    batchNumber: "BATCH004",
+    quantity: 50,
+    unit: "Capsules",
+    supplier: "MediCare Pharma",
+    expiryDate: new Date("2024-09-15"),
+    receivedDate: new Date("2024-07-10"),
+    department: "Internal Medicine",
+    status: "Expired",
+  },
+  {
+    id: "inv-data-005",
+    itemCode: "LOS005",
+    itemName: "Losartan 50mg",
+    batchNumber: "BATCH005",
+    quantity: 300,
+    unit: "Tablets",
+    supplier: "HealthPlus Corp",
+    expiryDate: new Date("2026-02-28"),
+    receivedDate: new Date("2024-10-05"),
+    department: "Pharmacy",
+    status: "Active",
+  },
+];
+
 const mockInventoryReports: InventoryReport[] = [
   {
     id: "inv-001",
@@ -104,6 +186,8 @@ const mockInventoryReports: InventoryReport[] = [
 export default function InventoryReportsPage() {
   const [reports, setReports] = useState<InventoryReport[]>(mockInventoryReports);
   const [filteredReports, setFilteredReports] = useState<InventoryReport[]>(mockInventoryReports);
+  const [reportData, setReportData] = useState<InventoryReportData[]>([]);
+  const [showReportData, setShowReportData] = useState<boolean>(false);
   const [reportTypeFilter, setReportTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date>();
@@ -144,20 +228,7 @@ export default function InventoryReportsPage() {
     setFilteredReports(filtered);
   };
 
-  const handleGenerateReport = (report: InventoryReport) => {
-    // Mock report generation
-    setReports(prev => prev.map(r =>
-      r.id === report.id ? { ...r, status: "generating" as const } : r
-    ));
-
-    setTimeout(() => {
-      setReports(prev => prev.map(r =>
-        r.id === report.id ? { ...r, status: "ready" as const, lastGenerated: new Date() } : r
-      ));
-      toast.success(`${report.name} generated successfully`);
-    }, 2000);
-  };
-
+  
   const handleExportReport = (reportId: string, format: "csv" | "pdf") => {
     toast.success(`Exporting ${format.toUpperCase()}...`);
   };
@@ -212,10 +283,6 @@ export default function InventoryReportsPage() {
             DIGITS ERP inventory data reports with export capabilities
           </p>
         </div>
-        <Button>
-          <Package className="mr-2 h-4 w-4" />
-          Generate All Reports
-        </Button>
       </div>
 
       {/* Filters Section */}
@@ -234,7 +301,7 @@ export default function InventoryReportsPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -282,6 +349,21 @@ export default function InventoryReportsPage() {
           </div>
 
           <div className="flex gap-4 mt-4">
+            <Button
+              onClick={() => {
+                if (reportTypeFilter !== "all") {
+                  setShowReportData(true);
+                  setReportData(mockInventoryReportData);
+                  toast.success(`Generated ${getReportTypeLabel(reportTypeFilter)} report successfully`);
+                } else {
+                  toast.error("Please select a report type first");
+                }
+              }}
+              disabled={reportTypeFilter === "all"}
+            >
+              <Package className="mr-2 h-4 w-4" />
+              Generate Report
+            </Button>
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters
             </Button>
@@ -289,119 +371,120 @@ export default function InventoryReportsPage() {
         </CardContent>
       </Card>
 
-      {/* Reports Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Reports ({filteredReports.length})</CardTitle>
-          <CardDescription>
-            Select a report to view details, generate, or export
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Report Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Data Source</TableHead>
-                  <TableHead>Records</TableHead>
-                  <TableHead>Last Generated</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReports.length === 0 ? (
+      {/* Report Data Table */}
+      {showReportData ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {reportTypeFilter !== "all" ? getReportTypeLabel(reportTypeFilter) : "Inventory"} Report Data
+            </CardTitle>
+            <CardDescription>
+              Detailed inventory data from DIGITS ERP system
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No reports found matching your filters
-                    </TableCell>
+                    <TableHead>Item Code</TableHead>
+                    <TableHead>Item Name</TableHead>
+                    <TableHead>Batch Number</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Expiry Date</TableHead>
+                    <TableHead>Received Date</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ) : (
-                  filteredReports.map((report) => {
-                    const StatusIcon = getStatusIcon(report.status);
-                    return (
-                      <TableRow key={report.id} className="hover:bg-muted/50">
+                </TableHeader>
+                <TableBody>
+                  {reportData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                        No data available for the selected report type
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    reportData.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{item.itemCode}</TableCell>
+                        <TableCell>{item.itemName}</TableCell>
+                        <TableCell>{item.batchNumber}</TableCell>
+                        <TableCell>{item.quantity.toLocaleString()}</TableCell>
+                        <TableCell>{item.unit}</TableCell>
+                        <TableCell>{item.supplier || "N/A"}</TableCell>
                         <TableCell>
-                          <div className="flex items-start gap-3">
-                            <Package className="h-5 w-5 mt-0.5 text-blue-500" />
-                            <div>
-                              <div className="font-medium">{report.name}</div>
-                              <div className="text-sm text-muted-foreground">{report.description}</div>
-                            </div>
-                          </div>
+                          {item.expiryDate ? format(item.expiryDate, "MMM dd, yyyy") : "N/A"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {getReportTypeLabel(report.type)}
+                          {item.receivedDate ? format(item.receivedDate, "MMM dd, yyyy") : "N/A"}
+                        </TableCell>
+                        <TableCell>{item.department || "N/A"}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={item.status === "Active" ? "default" :
+                                    item.status === "Expired" ? "destructive" :
+                                    item.status === "Expiring" ? "secondary" : "outline"}
+                          >
+                            {item.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            {report.dataSource}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {report.recordCount ? report.recordCount.toLocaleString() : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {report.lastGenerated ? format(report.lastGenerated, "MMM dd, yyyy") : "Never"}
-                        </TableCell>
-                        <TableCell>
-                          <div className={`flex items-center gap-2 ${getStatusColor(report.status)}`}>
-                            <StatusIcon className="h-4 w-4" />
-                            <span className="capitalize">{report.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleGenerateReport(report)}
-                              disabled={report.status === "generating"}
-                            >
-                              {report.status === "generating" ? "Generating..." : "Generate"}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handlePrintReport(report.id)}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Printer className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "csv")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              CSV
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "pdf")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              PDF
-                            </Button>
-                          </div>
-                        </TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "csv")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "pdf")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handlePrintReport("current")}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowReportData(false)}
+              >
+                Back to Reports
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="py-16">
+            <div className="text-center space-y-4">
+              <Package className="h-12 w-12 text-muted-foreground mx-auto" />
+              <div>
+                <h3 className="text-lg font-medium">Generate a Report to View Data</h3>
+                <p className="text-muted-foreground mt-2">
+                  Select a report type from the filters above and click "Generate Report" to view inventory data from DIGITS ERP.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

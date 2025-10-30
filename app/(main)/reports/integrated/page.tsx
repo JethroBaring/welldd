@@ -39,6 +39,88 @@ interface IntegratedReport {
   dataSource: string;
 }
 
+interface IntegratedReportData {
+  id: string;
+  medicationName: string;
+  diagnosis: string;
+  prescribedQuantity: number;
+  dispensedQuantity: number;
+  fulfillmentRate: number;
+  department: string;
+  month: string;
+  year: number;
+  consumptionTrend: string;
+  averageWaitTime: number;
+}
+
+const mockIntegratedReportData: IntegratedReportData[] = [
+  {
+    id: "int-data-001",
+    medicationName: "Paracetamol 500mg",
+    diagnosis: "Upper Respiratory Tract Infection",
+    prescribedQuantity: 1500,
+    dispensedQuantity: 1450,
+    fulfillmentRate: 96.7,
+    department: "Internal Medicine",
+    month: "October",
+    year: 2024,
+    consumptionTrend: "Increasing",
+    averageWaitTime: 15,
+  },
+  {
+    id: "int-data-002",
+    medicationName: "Amoxicillin 500mg",
+    diagnosis: "Bacterial Infections",
+    prescribedQuantity: 800,
+    dispensedQuantity: 780,
+    fulfillmentRate: 97.5,
+    department: "Emergency",
+    month: "October",
+    year: 2024,
+    consumptionTrend: "Stable",
+    averageWaitTime: 20,
+  },
+  {
+    id: "int-data-003",
+    medicationName: "Losartan 50mg",
+    diagnosis: "Hypertension",
+    prescribedQuantity: 1200,
+    dispensedQuantity: 1180,
+    fulfillmentRate: 98.3,
+    department: "Internal Medicine",
+    month: "October",
+    year: 2024,
+    consumptionTrend: "Increasing",
+    averageWaitTime: 10,
+  },
+  {
+    id: "int-data-004",
+    medicationName: "Salbutamol Inhaler",
+    diagnosis: "Asthma",
+    prescribedQuantity: 300,
+    dispensedQuantity: 285,
+    fulfillmentRate: 95.0,
+    department: "Pediatrics",
+    month: "October",
+    year: 2024,
+    consumptionTrend: "Stable",
+    averageWaitTime: 25,
+  },
+  {
+    id: "int-data-005",
+    medicationName: "Metformin 500mg",
+    diagnosis: "Type 2 Diabetes",
+    prescribedQuantity: 900,
+    dispensedQuantity: 870,
+    fulfillmentRate: 96.7,
+    department: "Internal Medicine",
+    month: "October",
+    year: 2024,
+    consumptionTrend: "Increasing",
+    averageWaitTime: 18,
+  },
+];
+
 const mockIntegratedReports: IntegratedReport[] = [
   {
     id: "int-001",
@@ -92,8 +174,10 @@ const mockIntegratedReports: IntegratedReport[] = [
 ];
 
 export default function IntegratedReportsPage() {
-  const [reports, setReports] = useState<IntegratedReport[]>(mockIntegratedReports);
+  const [reports] = useState<IntegratedReport[]>(mockIntegratedReports);
   const [filteredReports, setFilteredReports] = useState<IntegratedReport[]>(mockIntegratedReports);
+  const [reportData, setReportData] = useState<IntegratedReportData[]>([]);
+  const [showReportData, setShowReportData] = useState<boolean>(false);
   const [reportTypeFilter, setReportTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date>();
@@ -135,20 +219,7 @@ export default function IntegratedReportsPage() {
     setFilteredReports(filtered);
   };
 
-  const handleGenerateReport = (report: IntegratedReport) => {
-    // Mock report generation
-    setReports(prev => prev.map(r =>
-      r.id === report.id ? { ...r, status: "generating" as const } : r
-    ));
-
-    setTimeout(() => {
-      setReports(prev => prev.map(r =>
-        r.id === report.id ? { ...r, status: "ready" as const, lastGenerated: new Date() } : r
-      ));
-      toast.success(`${report.name} generated successfully`);
-    }, 2000);
-  };
-
+  
   const handleExportReport = (reportId: string, format: "csv" | "pdf") => {
     toast.success(`Exporting ${format.toUpperCase()}...`);
   };
@@ -202,10 +273,6 @@ export default function IntegratedReportsPage() {
             Combined reports from DIGITS ERP inventory and WellSync patient data
           </p>
         </div>
-        <Button>
-          <TrendingUp className="mr-2 h-4 w-4" />
-          Generate All Reports
-        </Button>
       </div>
 
       {/* Filters Section */}
@@ -220,11 +287,11 @@ export default function IntegratedReportsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -257,7 +324,7 @@ export default function IntegratedReportsPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Department</label>
               <Select value={department} onValueChange={setDepartment}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -273,7 +340,7 @@ export default function IntegratedReportsPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Barangay</label>
               <Select value={barangay} onValueChange={setBarangay}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Barangays" />
                 </SelectTrigger>
                 <SelectContent>
@@ -286,7 +353,7 @@ export default function IntegratedReportsPage() {
               </Select>
             </div>
 
-            <div className="space-y-2 lg:col-span-2">
+            <div className="space-y-2">
               <label className="text-sm font-medium">Search</label>
               <div className="relative">
                 <Input
@@ -301,6 +368,21 @@ export default function IntegratedReportsPage() {
           </div>
 
           <div className="flex gap-4 mt-4">
+            <Button
+              onClick={() => {
+                if (reportTypeFilter !== "all") {
+                  setShowReportData(true);
+                  setReportData(mockIntegratedReportData);
+                  toast.success(`Generated ${getReportTypeLabel(reportTypeFilter)} report successfully`);
+                } else {
+                  toast.error("Please select a report type first");
+                }
+              }}
+              disabled={reportTypeFilter === "all"}
+            >
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Generate Report
+            </Button>
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters
             </Button>
@@ -308,158 +390,124 @@ export default function IntegratedReportsPage() {
         </CardContent>
       </Card>
 
-      {/* Reports Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Reports ({filteredReports.length})</CardTitle>
-          <CardDescription>
-            Select a report to view details, generate, or export
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Report Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Data Source</TableHead>
-                  <TableHead>Records</TableHead>
-                  <TableHead>Last Generated</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReports.length === 0 ? (
+      {/* Report Data Table */}
+      {showReportData ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              {reportTypeFilter !== "all" ? getReportTypeLabel(reportTypeFilter) : "Integrated"} Report Data
+            </CardTitle>
+            <CardDescription>
+              Detailed integrated data from DIGITS ERP and WellSync systems
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No reports found matching your filters
-                    </TableCell>
+                    <TableHead>Medication Name</TableHead>
+                    <TableHead>Diagnosis</TableHead>
+                    <TableHead>Prescribed Qty</TableHead>
+                    <TableHead>Dispensed Qty</TableHead>
+                    <TableHead>Fulfillment Rate</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Month</TableHead>
+                    <TableHead>Consumption Trend</TableHead>
+                    <TableHead>Avg Wait Time (min)</TableHead>
                   </TableRow>
-                ) : (
-                  filteredReports.map((report) => {
-                    const StatusIcon = getStatusIcon(report.status);
-                    return (
-                      <TableRow key={report.id} className="hover:bg-muted/50">
-                        <TableCell>
-                          <div className="flex items-start gap-3">
-                            <TrendingUp className="h-5 w-5 mt-0.5 text-purple-500" />
-                            <div>
-                              <div className="font-medium">{report.name}</div>
-                              <div className="text-sm text-muted-foreground">{report.description}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {getReportTypeLabel(report.type)}
-                          </Badge>
-                        </TableCell>
+                </TableHeader>
+                <TableBody>
+                  {reportData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        No data available for the selected report type
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    reportData.map((data) => (
+                      <TableRow key={data.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{data.medicationName}</TableCell>
+                        <TableCell>{data.diagnosis}</TableCell>
+                        <TableCell>{data.prescribedQuantity.toLocaleString()}</TableCell>
+                        <TableCell>{data.dispensedQuantity.toLocaleString()}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Database className="h-4 w-4 text-muted-foreground" />
-                            {report.dataSource}
+                            <div className="w-12 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: `${data.fulfillmentRate}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium">{data.fulfillmentRate}%</span>
                           </div>
                         </TableCell>
+                        <TableCell>{data.department}</TableCell>
+                        <TableCell>{data.month} {data.year}</TableCell>
                         <TableCell>
-                          {report.recordCount ? report.recordCount.toLocaleString() : "N/A"}
+                          <Badge
+                            variant={data.consumptionTrend === "Increasing" ? "default" :
+                                    data.consumptionTrend === "Stable" ? "secondary" :
+                                    "outline"}
+                          >
+                            {data.consumptionTrend}
+                          </Badge>
                         </TableCell>
-                        <TableCell>
-                          {report.lastGenerated ? format(report.lastGenerated, "MMM dd, yyyy") : "Never"}
-                        </TableCell>
-                        <TableCell>
-                          <div className={`flex items-center gap-2 ${getStatusColor(report.status)}`}>
-                            <StatusIcon className="h-4 w-4" />
-                            <span className="capitalize">{report.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleGenerateReport(report)}
-                              disabled={report.status === "generating"}
-                            >
-                              {report.status === "generating" ? "Generating..." : "Generate"}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handlePrintReport(report.id)}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Printer className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "csv")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              CSV
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "pdf")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              PDF
-                            </Button>
-                          </div>
-                        </TableCell>
+                        <TableCell>{data.averageWaitTime}</TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
 
-      {/* Export Options Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Export & Integration</CardTitle>
-          <CardDescription>DOH/iClinicSys/eLMIS compliant export formats and stakeholder integration</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="flex items-start space-x-3">
-              <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <div className="flex gap-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "csv")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "pdf")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handlePrintReport("current")}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowReportData(false)}
+              >
+                Back to Reports
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="py-16">
+            <div className="text-center space-y-4">
+              <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto" />
               <div>
-                <h4 className="font-medium">PDF Export</h4>
-                <p className="text-sm text-muted-foreground">
-                  Printable reports with charts, graphs, and proper formatting
+                <h3 className="text-lg font-medium">Generate a Report to View Data</h3>
+                <p className="text-muted-foreground mt-2">
+                  Select a report type from the filters above and click "Generate Report" to view integrated data from DIGITS ERP and WellSync.
                 </p>
               </div>
             </div>
-            <div className="flex items-start space-x-3">
-              <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <h4 className="font-medium">CSV Export</h4>
-                <p className="text-sm text-muted-foreground">
-                  DOH/iClinicSys/eLMIS compliant CSV with proper encoding and headers
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <Database className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <h4 className="font-medium">Stakeholder Integration</h4>
-                <p className="text-sm text-muted-foreground">
-                  Direct integration with Mayor's Office, Accounting, and Treasury portals
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

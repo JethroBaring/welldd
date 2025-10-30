@@ -39,6 +39,94 @@ interface MedicalReport {
   dataSource: string;
 }
 
+interface PatientReportData {
+  id: string;
+  patientId: string;
+  name: string;
+  age: number;
+  gender: string;
+  barangay: string;
+  consultationDate: Date;
+  diagnosis: string;
+  prescription: string;
+  attendingPhysician: string;
+  department: string;
+  status: string;
+}
+
+const mockPatientReportData: PatientReportData[] = [
+  {
+    id: "patient-001",
+    patientId: "P-2024-1001",
+    name: "Maria Santos",
+    age: 35,
+    gender: "Female",
+    barangay: "Poblacion",
+    consultationDate: new Date("2024-10-28"),
+    diagnosis: "Upper Respiratory Tract Infection",
+    prescription: "Paracetamol 500mg, Amoxicillin 500mg",
+    attendingPhysician: "Dr. Reyes",
+    department: "Internal Medicine",
+    status: "Completed",
+  },
+  {
+    id: "patient-002",
+    patientId: "P-2024-1002",
+    name: "Juan Dela Cruz",
+    age: 42,
+    gender: "Male",
+    barangay: "San Antonio",
+    consultationDate: new Date("2024-10-27"),
+    diagnosis: "Hypertension Stage 1",
+    prescription: "Losartan 50mg, Amlodipine 5mg",
+    attendingPhysician: "Dr. Garcia",
+    department: "Internal Medicine",
+    status: "Follow-up Required",
+  },
+  {
+    id: "patient-003",
+    patientId: "P-2024-1003",
+    name: "Ana Rodriguez",
+    age: 28,
+    gender: "Female",
+    barangay: "San Vicente",
+    consultationDate: new Date("2024-10-26"),
+    diagnosis: "Acute Gastroenteritis",
+    prescription: "ORS, Loperamide 2mg",
+    attendingPhysician: "Dr. Santos",
+    department: "Emergency",
+    status: "Completed",
+  },
+  {
+    id: "patient-004",
+    patientId: "P-2024-1004",
+    name: "Carlos Mendoza",
+    age: 55,
+    gender: "Male",
+    barangay: "Santa Cruz",
+    consultationDate: new Date("2024-10-25"),
+    diagnosis: "Type 2 Diabetes Mellitus",
+    prescription: "Metformin 500mg, Glimepiride 2mg",
+    attendingPhysician: "Dr. Lopez",
+    department: "Internal Medicine",
+    status: "Ongoing Treatment",
+  },
+  {
+    id: "patient-005",
+    patientId: "P-2024-1005",
+    name: "Sophia Chen",
+    age: 8,
+    gender: "Female",
+    barangay: "Poblacion",
+    consultationDate: new Date("2024-10-24"),
+    diagnosis: "Pediatric Asthma",
+    prescription: "Salbutamol 2mg/5ml, Montelukast 4mg",
+    attendingPhysician: "Dr. Martinez",
+    department: "Pediatrics",
+    status: "Regular Check-up",
+  },
+];
+
 const mockMedicalReports: MedicalReport[] = [
   {
     id: "med-001",
@@ -102,13 +190,14 @@ const mockMedicalReports: MedicalReport[] = [
 ];
 
 export default function MedicalReportsPage() {
-  const [reports, setReports] = useState<MedicalReport[]>(mockMedicalReports);
+  const [reports] = useState<MedicalReport[]>(mockMedicalReports);
   const [filteredReports, setFilteredReports] = useState<MedicalReport[]>(mockMedicalReports);
+  const [reportData, setReportData] = useState<PatientReportData[]>([]);
+  const [showReportData, setShowReportData] = useState<boolean>(false);
   const [reportTypeFilter, setReportTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
-  const [selectedReport, setSelectedReport] = useState<MedicalReport | null>(null);
 
   useEffect(() => {
     filterReports();
@@ -142,20 +231,6 @@ export default function MedicalReportsPage() {
     }
 
     setFilteredReports(filtered);
-  };
-
-  const handleGenerateReport = (report: MedicalReport) => {
-    // Mock report generation
-    setReports(prev => prev.map(r =>
-      r.id === report.id ? { ...r, status: "generating" as const } : r
-    ));
-
-    setTimeout(() => {
-      setReports(prev => prev.map(r =>
-        r.id === report.id ? { ...r, status: "ready" as const, lastGenerated: new Date() } : r
-      ));
-      toast.success(`${report.name} generated successfully`);
-    }, 2000);
   };
 
   const handleExportReport = (reportId: string, format: "csv" | "pdf") => {
@@ -212,10 +287,6 @@ export default function MedicalReportsPage() {
             WellSync patient data reports with demographic analysis
           </p>
         </div>
-        <Button>
-          <Users className="mr-2 h-4 w-4" />
-          Generate All Reports
-        </Button>
       </div>
 
       {/* Filters Section */}
@@ -234,7 +305,7 @@ export default function MedicalReportsPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -282,6 +353,21 @@ export default function MedicalReportsPage() {
           </div>
 
           <div className="flex gap-4 mt-4">
+            <Button
+              onClick={() => {
+                if (reportTypeFilter !== "all") {
+                  setShowReportData(true);
+                  setReportData(mockPatientReportData);
+                  toast.success(`Generated ${getReportTypeLabel(reportTypeFilter)} report successfully`);
+                } else {
+                  toast.error("Please select a report type first");
+                }
+              }}
+              disabled={reportTypeFilter === "all"}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Generate Report
+            </Button>
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters
             </Button>
@@ -289,119 +375,118 @@ export default function MedicalReportsPage() {
         </CardContent>
       </Card>
 
-      {/* Reports Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Reports ({filteredReports.length})</CardTitle>
-          <CardDescription>
-            Select a report to view details, generate, or export
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Report Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Data Source</TableHead>
-                  <TableHead>Records</TableHead>
-                  <TableHead>Last Generated</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReports.length === 0 ? (
+      {/* Report Data Table */}
+      {showReportData ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {reportTypeFilter !== "all" ? getReportTypeLabel(reportTypeFilter) : "Patient"} Report Data
+            </CardTitle>
+            <CardDescription>
+              Detailed patient data from WellSync system
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No reports found matching your filters
-                    </TableCell>
+                    <TableHead>Patient ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Age</TableHead>
+                    <TableHead>Gender</TableHead>
+                    <TableHead>Barangay</TableHead>
+                    <TableHead>Consultation Date</TableHead>
+                    <TableHead>Diagnosis</TableHead>
+                    <TableHead>Prescription</TableHead>
+                    <TableHead>Attending Physician</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ) : (
-                  filteredReports.map((report) => {
-                    const StatusIcon = getStatusIcon(report.status);
-                    return (
-                      <TableRow key={report.id} className="hover:bg-muted/50">
+                </TableHeader>
+                <TableBody>
+                  {reportData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                        No data available for the selected report type
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    reportData.map((patient) => (
+                      <TableRow key={patient.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{patient.patientId}</TableCell>
+                        <TableCell>{patient.name}</TableCell>
+                        <TableCell>{patient.age}</TableCell>
+                        <TableCell>{patient.gender}</TableCell>
+                        <TableCell>{patient.barangay}</TableCell>
+                        <TableCell>{format(patient.consultationDate, "MMM dd, yyyy")}</TableCell>
+                        <TableCell>{patient.diagnosis}</TableCell>
+                        <TableCell>{patient.prescription}</TableCell>
+                        <TableCell>{patient.attendingPhysician}</TableCell>
+                        <TableCell>{patient.department}</TableCell>
                         <TableCell>
-                          <div className="flex items-start gap-3">
-                            <Users className="h-5 w-5 mt-0.5 text-green-500" />
-                            <div>
-                              <div className="font-medium">{report.name}</div>
-                              <div className="text-sm text-muted-foreground">{report.description}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {getReportTypeLabel(report.type)}
+                          <Badge
+                            variant={patient.status === "Completed" ? "default" :
+                                    patient.status === "Follow-up Required" ? "secondary" :
+                                    patient.status === "Ongoing Treatment" ? "outline" : "secondary"}
+                          >
+                            {patient.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            {report.dataSource}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {report.recordCount ? report.recordCount.toLocaleString() : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {report.lastGenerated ? format(report.lastGenerated, "MMM dd, yyyy") : "Never"}
-                        </TableCell>
-                        <TableCell>
-                          <div className={`flex items-center gap-2 ${getStatusColor(report.status)}`}>
-                            <StatusIcon className="h-4 w-4" />
-                            <span className="capitalize">{report.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleGenerateReport(report)}
-                              disabled={report.status === "generating"}
-                            >
-                              {report.status === "generating" ? "Generating..." : "Generate"}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handlePrintReport(report.id)}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Printer className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "csv")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              CSV
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleExportReport(report.id, "pdf")}
-                              disabled={report.status !== "ready"}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              PDF
-                            </Button>
-                          </div>
-                        </TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "csv")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleExportReport("current", "pdf")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handlePrintReport("current")}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowReportData(false)}
+              >
+                Back to Reports
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="py-16">
+            <div className="text-center space-y-4">
+              <Users className="h-12 w-12 text-muted-foreground mx-auto" />
+              <div>
+                <h3 className="text-lg font-medium">Generate a Report to View Data</h3>
+                <p className="text-muted-foreground mt-2">
+                  Select a report type from the filters above and click "Generate Report" to view patient data from WellSync.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

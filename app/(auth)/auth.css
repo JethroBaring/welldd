@@ -2,7 +2,7 @@
     width: 100%;
     height: 100vh;
     position: relative;
-    background: #ffffff;
+    background: #E8ECEF;
     padding: 40px;
 }
 
@@ -227,7 +227,7 @@
     height: 45px;
     border-radius: 50%;
     border: 4px solid #169c9c;
-    background: transparent;
+    background: #ffffff;
     animation: pulse 4s ease-in-out infinite;
 }
 

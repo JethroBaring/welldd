@@ -198,6 +198,12 @@ export default function MedicalReportsPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
+  const [patientName, setPatientName] = useState<string>("");
+  const [patientId, setPatientId] = useState<string>("");
+  const [ageRange, setAgeRange] = useState<string>("all");
+  const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [barangayFilter, setBarangayFilter] = useState<string>("all");
 
   useEffect(() => {
     filterReports();
@@ -284,7 +290,7 @@ export default function MedicalReportsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Medical Reports</h1>
           <p className="text-sm text-muted-foreground">
-            WellSync patient data reports with demographic analysis
+            WellSync patient demographics reports with age distribution, gender breakdown, location (barangay) analysis, and comprehensive multi-dimensional filtering. Integrates with departmental portals and stakeholder systems.
           </p>
         </div>
       </div>
@@ -301,7 +307,7 @@ export default function MedicalReportsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
@@ -316,6 +322,54 @@ export default function MedicalReportsPage() {
                   <SelectItem value="prescriptions">Prescriptions</SelectItem>
                   <SelectItem value="age_distribution">Age Distribution</SelectItem>
                   <SelectItem value="barangay_distribution">Barangay Distribution</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Age Range</label>
+              <Select value={ageRange} onValueChange={setAgeRange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Ages" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ages</SelectItem>
+                  <SelectItem value="0-12">0-12 years</SelectItem>
+                  <SelectItem value="13-18">13-18 years</SelectItem>
+                  <SelectItem value="19-35">19-35 years</SelectItem>
+                  <SelectItem value="36-50">36-50 years</SelectItem>
+                  <SelectItem value="51+">51+ years</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Gender</label>
+              <Select value={genderFilter} onValueChange={setGenderFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Genders" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Genders</SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Barangay</label>
+              <Select value={barangayFilter} onValueChange={setBarangayFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Barangays" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Barangays</SelectItem>
+                  <SelectItem value="poblacion">Poblacion</SelectItem>
+                  <SelectItem value="san-antonio">San Antonio</SelectItem>
+                  <SelectItem value="san-vicente">San Vicente</SelectItem>
+                  <SelectItem value="santa-cruz">Santa Cruz</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -337,19 +391,44 @@ export default function MedicalReportsPage() {
                 onChange={(e) => setDateTo(e.target.value ? new Date(e.target.value) : undefined)}
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
-              <div className="relative">
-                <Input
-                  placeholder="Search reports..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-9"
-                />
-                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              </div>
+          {/* Advanced Search Section */}
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium">Advanced Search Options</h4>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                className="flex items-center gap-2"
+              >
+                <Search className="h-4 w-4" />
+                {showAdvancedSearch ? "Hide" : "Show"} Advanced Search
+              </Button>
             </div>
+
+            {showAdvancedSearch && (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 p-4 border rounded-lg bg-muted/30">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Patient Name</label>
+                  <Input
+                    placeholder="Enter patient name..."
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Patient ID Number</label>
+                  <Input
+                    placeholder="Enter patient ID..."
+                    value={patientId}
+                    onChange={(e) => setPatientId(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 mt-4">
@@ -467,7 +546,7 @@ export default function MedicalReportsPage() {
                 variant="outline"
                 onClick={() => setShowReportData(false)}
               >
-                Back to Reports
+                Clear Reports
               </Button>
             </div>
           </CardContent>

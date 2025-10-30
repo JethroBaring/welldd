@@ -193,6 +193,11 @@ export default function InventoryReportsPage() {
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
   const [selectedReport, setSelectedReport] = useState<InventoryReport | null>(null);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
+  const [itemName, setItemName] = useState<string>("");
+  const [batchNumber, setBatchNumber] = useState<string>("");
+  const [department, setDepartment] = useState<string>("all");
+  const [supplier, setSupplier] = useState<string>("all");
 
   useEffect(() => {
     filterReports();
@@ -242,6 +247,10 @@ export default function InventoryReportsPage() {
     setSearchQuery("");
     setDateFrom(undefined);
     setDateTo(undefined);
+    setDepartment("all");
+    setSupplier("all");
+    setItemName("");
+    setBatchNumber("");
   };
 
   const getReportTypeLabel = (type: string) => {
@@ -280,7 +289,7 @@ export default function InventoryReportsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Inventory Reports</h1>
           <p className="text-sm text-muted-foreground">
-            DIGITS ERP inventory data reports with export capabilities
+            DIGITS ERP inventory management reports with multi-dimensional filtering, activity periods, and departmental analytics. Integrates with Mayor's Office, Accounting, and Treasury portals.
           </p>
         </div>
       </div>
@@ -293,11 +302,11 @@ export default function InventoryReportsPage() {
             Report Filters
           </CardTitle>
           <CardDescription>
-            Filter inventory reports by type, date range, and search criteria
+            Filter inventory reports by type, department/cost center, supplier, date range, and advanced search parameters including patient details and batch information
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
@@ -312,6 +321,39 @@ export default function InventoryReportsPage() {
                   <SelectItem value="low_stock">Low Stock</SelectItem>
                   <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
                   <SelectItem value="stock_movement">Stock Movement</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Department/Cost Center</label>
+              <Select value={department} onValueChange={setDepartment}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                  <SelectItem value="emergency">Emergency</SelectItem>
+                  <SelectItem value="internal-medicine">Internal Medicine</SelectItem>
+                  <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                  <SelectItem value="obstetrics">Obstetrics</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Supplier</label>
+              <Select value={supplier} onValueChange={setSupplier}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Suppliers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Suppliers</SelectItem>
+                  <SelectItem value="medicare-pharma">MediCare Pharma</SelectItem>
+                  <SelectItem value="healthplus-corp">HealthPlus Corp</SelectItem>
+                  <SelectItem value="biomed-supplies">BioMed Supplies</SelectItem>
+                  <SelectItem value="pharma-globe">Pharma Globe</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -335,10 +377,10 @@ export default function InventoryReportsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
+              <label className="text-sm font-medium">Basic Search</label>
               <div className="relative">
                 <Input
-                  placeholder="Search reports..."
+                  placeholder="Quick search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pr-9"
@@ -346,6 +388,44 @@ export default function InventoryReportsPage() {
                 <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
+          </div>
+
+          {/* Advanced Search Section */}
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium">Advanced Search Options</h4>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                className="flex items-center gap-2"
+              >
+                <Search className="h-4 w-4" />
+                {showAdvancedSearch ? "Hide" : "Show"} Advanced Search
+              </Button>
+            </div>
+
+            {showAdvancedSearch && (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 p-4 border rounded-lg bg-muted/30">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Item/Medicine Name</label>
+                  <Input
+                    placeholder="Enter item name..."
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Batch Number</label>
+                  <Input
+                    placeholder="Enter batch number..."
+                    value={batchNumber}
+                    onChange={(e) => setBatchNumber(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 mt-4">
@@ -465,7 +545,7 @@ export default function InventoryReportsPage() {
                 variant="outline"
                 onClick={() => setShowReportData(false)}
               >
-                Back to Reports
+                Clear Reports
               </Button>
             </div>
           </CardContent>

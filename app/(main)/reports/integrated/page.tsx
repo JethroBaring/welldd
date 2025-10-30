@@ -270,7 +270,7 @@ export default function IntegratedReportsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Integrated Reports</h1>
           <p className="text-sm text-muted-foreground">
-            Combined reports from DIGITS ERP inventory and WellSync patient data
+            Comprehensive integrated reports combining DIGITS ERP inventory data with WellSync patient demographics. Features multi-dimensional filtering by date range, items/medicines, patient demographics, and department/cost centers with advanced search capabilities.
           </p>
         </div>
       </div>
@@ -488,7 +488,7 @@ export default function IntegratedReportsPage() {
                 variant="outline"
                 onClick={() => setShowReportData(false)}
               >
-                Back to Reports
+                Clear Reports
               </Button>
             </div>
           </CardContent>

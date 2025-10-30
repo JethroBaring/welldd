@@ -29,6 +29,11 @@ export const mockPatients: Patient[] = [
     registrationDate: new Date("2024-01-15"),
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2025-10-20"),
+    height: 170,
+    weight: 70,
+    bmi: 24.2,
+    immunizationRecords: ["MMR (2020)", "Hepatitis B (2020)", "COVID-19 (2021)"],
+    labTestResults: ["CBC Normal (2024-01)", "Chest X-Ray Clear (2025-03)"]
   },
   {
     id: "PAT-002",

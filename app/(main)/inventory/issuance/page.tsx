@@ -302,37 +302,48 @@ export default function StockIssuancePage() {
                 </TableCell>
               </TableRow>
             ) : (
-              pageRows.map((r) => (
-                <TableRow key={r.id}>
-                  {visibleCols.issuanceNo && (
-                    <TableCell className="pl-4 font-medium">{r.issuanceNo}</TableCell>
-                  )}
-                  {visibleCols.issuanceDate && (
-                    <TableCell>{format(new Date(r.issuanceDate), "MMM dd, yyyy")}</TableCell>
-                  )}
-                  {visibleCols.issuanceType && <TableCell>{r.issuanceType}</TableCell>}
-                  {visibleCols.deliveryDate && (
-                    <TableCell>{r.deliveryDate ? format(new Date(r.deliveryDate), "MMM dd, yyyy") : "-"}</TableCell>
-                  )}
-                  {visibleCols.status && <TableCell>{r.status}</TableCell>}
-                  {visibleCols.source && <TableCell>{r.source}</TableCell>}
-                  {visibleCols.destination && <TableCell>{r.destination}</TableCell>}
-                  {visibleCols.numItems && <TableCell>{r.numItems}</TableCell>}
-                  {visibleCols.deliveryStatus && <TableCell>{r.deliveryStatus}</TableCell>}
-                  {visibleCols.receiveStatus && <TableCell>{r.receiveStatus}</TableCell>}
-                  {visibleCols.deliveryReceiptNo && <TableCell>{r.deliveryReceiptNo ?? "-"}</TableCell>}
-                  {visibleCols.consignmentOrder && <TableCell>{r.consignmentOrder ?? "-"}</TableCell>}
-                  {visibleCols.approvers && <TableCell>{r.approvers ?? "-"}</TableCell>}
-                  {visibleCols.createdBy && <TableCell>{r.createdBy}</TableCell>}
-                  {visibleCols.action && (
-                    <TableCell className="text-center pr-4">
-                      <Link href={`/inventory/issuance/${r.id}`}>
-                        <Button variant="ghost" size="sm">View</Button>
-                      </Link>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
+              pageRows.map((r) => {
+                // Make the row redirect to the view page except for View button
+                return (
+                  <TableRow
+                    key={r.id}
+                    className="hover:bg-muted/50 cursor-pointer"
+                    onClick={() => window.location.href = `/inventory/issuance/${r.id}`}
+                  >
+                    {visibleCols.issuanceNo && (
+                      <TableCell className="pl-4 font-medium">{r.issuanceNo}</TableCell>
+                    )}
+                    {visibleCols.issuanceDate && (
+                      <TableCell>{format(new Date(r.issuanceDate), "MMM dd, yyyy")}</TableCell>
+                    )}
+                    {visibleCols.issuanceType && <TableCell>{r.issuanceType}</TableCell>}
+                    {visibleCols.deliveryDate && (
+                      <TableCell>{r.deliveryDate ? format(new Date(r.deliveryDate), "MMM dd, yyyy") : "-"}</TableCell>
+                    )}
+                    {visibleCols.status && <TableCell>{r.status}</TableCell>}
+                    {visibleCols.source && <TableCell>{r.source}</TableCell>}
+                    {visibleCols.destination && <TableCell>{r.destination}</TableCell>}
+                    {visibleCols.numItems && <TableCell>{r.numItems}</TableCell>}
+                    {visibleCols.deliveryStatus && <TableCell>{r.deliveryStatus}</TableCell>}
+                    {visibleCols.receiveStatus && <TableCell>{r.receiveStatus}</TableCell>}
+                    {visibleCols.deliveryReceiptNo && <TableCell>{r.deliveryReceiptNo ?? "-"}</TableCell>}
+                    {visibleCols.consignmentOrder && <TableCell>{r.consignmentOrder ?? "-"}</TableCell>}
+                    {visibleCols.approvers && <TableCell>{r.approvers ?? "-"}</TableCell>}
+                    {visibleCols.createdBy && <TableCell>{r.createdBy}</TableCell>}
+                    {visibleCols.action && (
+                      <TableCell
+                        className="text-center pr-4"
+                        // Prevent row click from triggering when clicking the button
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <Link href={`/inventory/issuance/${r.id}`}>
+                          <Button variant="ghost" size="sm">View</Button>
+                        </Link>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

@@ -80,13 +80,18 @@ const navData = {
       roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
       items: [
         {
-          title: "Items",
-          url: "/inventory/items",
-          roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
-        },
-        {
           title: "Dispense",
           url: "/inventory/dispense",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Warehouse Receiving",
+          url: "/inventory/receiving",
+          roles: ["super_admin", "gso_staff"],
+        },
+        {
+          title: "Stock Issuance Receiving",
+          url: "/inventory/issuance-receiving",
           roles: ["super_admin", "gso_staff"],
         },
         {
@@ -100,23 +105,13 @@ const navData = {
           roles: ["super_admin", "gso_staff"],
         },
         {
-          title: "Stock Issuance Receiving",
-          url: "/inventory/issuance-receiving",
-          roles: ["super_admin", "gso_staff"],
+          title: "Items",
+          url: "/inventory/items",
+          roles: ["super_admin", "gso_staff", "medical_staff", "admin_staff"],
         },
         {
           title: "Adjustments",
           url: "/inventory/adjustments",
-          roles: ["super_admin", "gso_staff"],
-        },
-        {
-          title: "Warehouse Receiving",
-          url: "/inventory/receiving",
-          roles: ["super_admin", "gso_staff"],
-        },
-        {
-          title: "Stock Monitoring",
-          url: "/inventory/monitoring",
           roles: ["super_admin", "gso_staff"],
         },
         {
@@ -144,30 +139,30 @@ const navData = {
       //   },
       // ],
     },
-    {
-      title: "Disease Surveillance",
-      url: "/surveillance",
-      icon: IconActivity,
-      roles: ["super_admin", "medical_staff", "admin_staff"],
-    },
-    {
-      title: "Suppliers",
-      url: "/suppliers",
-      icon: IconBuilding,
-      roles: ["super_admin", "gso_staff", "admin_staff"],
-    },
-    {
-      title: "User Management",
-      url: "/users",
-      icon: IconUserCog,
-      roles: ["super_admin"],
-    },
-    {
-      title: "LGU Management",
-      url: "/lgu",
-      icon: IconUsers,
-      roles: ["super_admin", "admin_staff"],
-    },
+    // {
+    //   title: "Disease Surveillance",
+    //   url: "/surveillance",
+    //   icon: IconActivity,
+    //   roles: ["super_admin", "medical_staff", "admin_staff"],
+    // },
+    // {
+    //   title: "Suppliers",
+    //   url: "/suppliers",
+    //   icon: IconBuilding,
+    //   roles: ["super_admin", "gso_staff", "admin_staff"],
+    // },
+    // {
+    //   title: "User Management",
+    //   url: "/users",
+    //   icon: IconUserCog,
+    //   roles: ["super_admin"],
+    // },
+    // {
+    //   title: "LGU Management",
+    //   url: "/lgu",
+    //   icon: IconUsers,
+    //   roles: ["super_admin", "admin_staff"],
+    // },
     {
       title: "Reports",
       url: "/reports",

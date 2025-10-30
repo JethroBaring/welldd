@@ -160,7 +160,7 @@ export default function StockIssuanceReceivingPage() {
         <p className="text-sm text-muted-foreground">Receive approved stock issuances and review receiving logs.</p>
       </div>
 
-      <Tabs defaultValue="iss" className="w-full">
+      <Tabs defaultValue="iss" className="mt-6 w-full">
         <TabsList>
           <TabsTrigger value="iss">Stock Issuances to Receive</TabsTrigger>
           <TabsTrigger value="sir">Stock Issuance Receivings</TabsTrigger>
@@ -262,7 +262,7 @@ export default function StockIssuanceReceivingPage() {
             const pageRows = filteredIssuances.slice(startIdx, endIdx);
             return (
               <>
-                <div className="rounded-md border">
+                <div className="mt-6 rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -319,7 +319,7 @@ export default function StockIssuanceReceivingPage() {
                   </Table>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
                   {(() => {
                     const start = total === 0 ? 0 : startIdx + 1;
                     const end = endIdx;
@@ -467,7 +467,7 @@ export default function StockIssuanceReceivingPage() {
             const pageRows = filteredReceivings.slice(startIdx, endIdx);
             return (
               <>
-                <div className="rounded-md border">
+                <div className="mt-6 rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -524,7 +524,7 @@ export default function StockIssuanceReceivingPage() {
                   </Table>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
                   {(() => {
                     const start = total === 0 ? 0 : startIdx + 1;
                     const end = endIdx;

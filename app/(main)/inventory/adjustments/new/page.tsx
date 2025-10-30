@@ -38,11 +38,8 @@ export default function NewInventoryAdjustmentPage() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const adjustmentTypes = [
-    { value: "physical_count", label: "Physical Count", description: "Regular inventory counting" },
-    { value: "damage", label: "Damage", description: "Items damaged during storage or handling" },
-    { value: "expired", label: "Expired Items", description: "Items past their expiration date" },
-    { value: "correction", label: "Correction", description: "Data entry or system corrections" },
-    { value: "other", label: "Other", description: "Other types of adjustments" },
+    { value: "quantity_adjustment", label: "Quantity Adjustment" },
+    { value: "location_transfer", label: "Location Transfer" },
   ];
 
   const calculateDifference = () => {
@@ -141,7 +138,7 @@ export default function NewInventoryAdjustmentPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="itemId">Item Name *</Label>
+                <Label htmlFor="itemId">Item *</Label>
                 <Select
                   value={formData.itemId}
                   onValueChange={handleItemChange}
@@ -163,7 +160,22 @@ export default function NewInventoryAdjustmentPage() {
                   </SelectContent>
                 </Select>
               </div>
-
+              <div className="space-y-2">
+                <Label htmlFor="dateReceived">Date Received *</Label>
+                <Input type="date" id="dateReceived" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="approvers">Approvers *</Label>
+                <Select id="approvers">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select approvers..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user-1">Dr. Reyes</SelectItem>
+                    <SelectItem value="user-2">Manager Ana</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="adjustmentType">Adjustment Type *</Label>
                 <Select
@@ -176,118 +188,120 @@ export default function NewInventoryAdjustmentPage() {
                   <SelectContent>
                     {adjustmentTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
-                        <div>
-                          <div className="font-medium">{type.label}</div>
-                          <div className="text-sm text-muted-foreground">{type.description}</div>
-                        </div>
+                        {type.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantityBefore">Current Quantity *</Label>
-                <Input
-                  id="quantityBefore"
-                  type="number"
-                  value={formData.quantityBefore}
-                  onChange={(e) => setFormData({ ...formData, quantityBefore: Number(e.target.value) })}
-                  disabled={!selectedItem}
-                  className={selectedItem ? "" : "bg-muted"}
-                />
-                {selectedItem && (
-                  <p className="text-sm text-muted-foreground">
-                    Based on current inventory count
-                  </p>
-                )}
-              </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quantityAfter">Adjusted Quantity *</Label>
-                <Input
-                  id="quantityAfter"
-                  type="number"
-                  value={formData.quantityAfter}
-                  onChange={(e) => setFormData({ ...formData, quantityAfter: Number(e.target.value) })}
-                  disabled={!selectedItem}
-                  className={selectedItem ? "" : "bg-muted"}
-                />
-                {selectedItem && (
-                  <p className="text-sm text-muted-foreground">
-                    New quantity after adjustment
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Difference</Label>
-                <Input
-                  value={difference === 0 ? "0" : `${difference > 0 ? '+' : ''}${difference}`}
-                  disabled
-                  className={`bg-muted font-medium ${
-                    difference > 0 ? 'text-green-600' :
-                    difference < 0 ? 'text-red-600' : ''
-                  }`}
-                />
-                <p className="text-sm text-muted-foreground">
-                  {difference > 0 ? "Added to inventory" :
-                   difference < 0 ? "Removed from inventory" : "No change"}
-                </p>
+                <Label htmlFor="branch">Branch *</Label>
+                <Select id="branch">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="main">Main Branch</SelectItem>
+                    <SelectItem value="branch2">Branch 2</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="batchNumber">Batch Number *</Label>
-              <Input
-                id="batchNumber"
-                placeholder="e.g., PARA2024-A01"
-                value={formData.batchNumber}
-                onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-              />
-              {selectedItem && selectedItem.batches.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-sm text-muted-foreground mb-2">Available batches:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedItem.batches.map((batch: any) => (
-                      <Button
-                        key={batch.id}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setFormData({ ...formData, batchNumber: batch.batchNumber })}
-                      >
-                        {batch.batchNumber} ({batch.quantity})
-                      </Button>
-                    ))}
+            
+            {formData.adjustmentType === "quantity_adjustment" && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>Location</Label>
+                    <Select id="location">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unassigned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                        <SelectItem value="storage">Storage Room</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>New Quantity on Hand (Unit) *</Label>
+                    <Input type="number" min="0" value={formData.quantityAfter} onChange={e => setFormData({ ...formData, quantityAfter: Number(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity on Hand (Unit)</Label>
+                    <Input type="number" disabled value={formData.quantityBefore} />
                   </div>
                 </div>
-              )}
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>New Converted Quantity(Inventory Unit)</Label>
+                    <Input type="number" disabled value={formData.quantityAfter} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>On hand Converted Quantity(Inventory Unit)</Label>
+                    <Input type="number" disabled value={formData.quantityBefore} />
+                  </div>
+                </div>
+              </>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="reason">Reason for Adjustment *</Label>
-              <Textarea
-                id="reason"
-                placeholder="Explain why this adjustment is necessary..."
-                value={formData.reason}
-                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="remarks">Additional Remarks</Label>
-              <Textarea
-                id="remarks"
-                placeholder="Any additional notes or observations..."
-                value={formData.remarks}
-                onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                rows={2}
-              />
-            </div>
+            {formData.adjustmentType === "location_transfer" && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sourceLocation">Source Location*</Label>
+                    <Select id="sourceLocation">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Source Location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="loc-a">Pharmacy Storage</SelectItem>
+                        <SelectItem value="loc-b">Clinic Room</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="destLocation">Destination Location*</Label>
+                    <Select id="destLocation">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Destination Location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="loc-b">Clinic Room</SelectItem>
+                        <SelectItem value="loc-a">Pharmacy Storage</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {/* Quantity summary */}
+                <div className="mt-6">
+                  <span className="font-semibold text-orange-500 border-b block mb-4">Quantity</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className="p-2">
+                      <CardContent>
+                        <div className="font-bold mb-1">Source</div>
+                        <div className="text-muted-foreground text-sm mb-2">No source selected</div>
+                        <div className="text-3xl font-extrabold text-center">0</div>
+                        <div className="text-xs mt-1 text-center">Converted Quantity(Inventory Unit) 0</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="p-2">
+                      <CardContent>
+                        <div className="font-bold mb-1">Destination</div>
+                        <div className="text-muted-foreground text-sm mb-2">No destination selected</div>
+                        <div className="text-3xl font-extrabold text-center">0</div>
+                        <div className="text-xs mt-1 text-center">Converted Quantity(Inventory Unit) 0</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                <div className="space-y-2 mt-6">
+                  <Label>Quantity to Transfer *</Label>
+                  <Input id="quantityToTransfer" type="number" min="0" defaultValue={0} />
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 

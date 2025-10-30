@@ -32,7 +32,21 @@ export default function NewPatientPage() {
     emergencyContactName: "",
     emergencyContactRelationship: "",
     emergencyContactPhone: "",
+    // New fields
+    height: "",
+    weight: "",
+    immunizationRecords: "",
+    labTestResults: "",
+    bmi: ""
   });
+
+  // Add computeBMI utility for auto-calculation
+  const computeBMI = (weight: string, height: string) => {
+    const w = parseFloat(weight);
+    const h = parseFloat(height) / 100;
+    if (!w || !h) return "";
+    return (w / (h * h)).toFixed(2);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +82,11 @@ export default function NewPatientPage() {
               phone: formData.emergencyContactPhone,
             }
           : undefined,
+        height: formData.height ? parseFloat(formData.height) : undefined,
+        weight: formData.weight ? parseFloat(formData.weight) : undefined,
+        bmi: formData.bmi ? parseFloat(formData.bmi) : (formData.height && formData.weight ? parseFloat(computeBMI(formData.weight, formData.height)) : undefined),
+        immunizationRecords: formData.immunizationRecords ? formData.immunizationRecords.split(',').map(v => v.trim()) : undefined,
+        labTestResults: formData.labTestResults ? formData.labTestResults.split(',').map(v => v.trim()) : undefined,
       });
 
       toast.success("Patient registered successfully");
@@ -186,6 +205,44 @@ export default function NewPatientPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="height">Height (cm)</Label>
+              <Input
+                id="height"
+                type="number"
+                value={formData.height}
+                onChange={(e) => {
+                  const height = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    height,
+                    bmi: computeBMI(prev.weight, height)
+                  }));
+                }}
+                placeholder="170"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input
+                id="weight"
+                type="number"
+                value={formData.weight}
+                onChange={(e) => {
+                  const weight = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    weight,
+                    bmi: computeBMI(weight, prev.height)
+                  }));
+                }}
+                placeholder="70"
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label>BMI</Label>
+              <Input value={formData.bmi} readOnly placeholder="Auto-calculated" />
+            </div>
           </CardContent>
         </Card>
 
@@ -261,6 +318,33 @@ export default function NewPatientPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, emergencyContactPhone: e.target.value })
                 }
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Immunization & Labs</CardTitle>
+            <CardDescription>Immunization history and lab/test results</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="immunizationRecords">Immunization Records</Label>
+              <Input
+                id="immunizationRecords"
+                value={formData.immunizationRecords}
+                onChange={e => setFormData({ ...formData, immunizationRecords: e.target.value })}
+                placeholder="MMR (2020), Hep B (2020), ..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="labTestResults">Lab & Test Results</Label>
+              <Input
+                id="labTestResults"
+                value={formData.labTestResults}
+                onChange={e => setFormData({ ...formData, labTestResults: e.target.value })}
+                placeholder="CBC Normal (2024-01), ..."
               />
             </div>
           </CardContent>

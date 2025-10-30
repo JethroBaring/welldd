@@ -29,6 +29,12 @@ export interface Patient {
   registrationDate: Date;
   createdAt: Date;
   updatedAt: Date;
+  // New fields
+  height?: number;
+  weight?: number;
+  bmi?: number;
+  immunizationRecords?: string[];
+  labTestResults?: string[];
 }
 
 export interface MedicalRecord {

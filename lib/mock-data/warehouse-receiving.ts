@@ -43,6 +43,8 @@ export const mockWarehouseReceivingReports: WarehouseReceivingReport[] = [
     remarks: "Complete delivery, no issues",
     createdAt: new Date("2025-10-24"),
     updatedAt: new Date("2025-10-24"),
+    createdBy: "Juan Dela Cruz",
+    approver: "Maria Reyes",
   },
   {
     id: "WRR-002",
@@ -86,6 +88,8 @@ export const mockWarehouseReceivingReports: WarehouseReceivingReport[] = [
     remarks: "Supplier notified of balance",
     createdAt: new Date("2025-10-28"),
     updatedAt: new Date("2025-10-28"),
+    createdBy: "Anna Santos",
+    approver: "Pedro Mendoza",
   },
 ];
 

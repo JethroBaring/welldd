@@ -120,6 +120,12 @@ export default function PatientDetailPage() {
               <div className="text-sm font-medium">
                 {format(new Date(patient.registrationDate), "MMMM dd, yyyy")}
               </div>
+              <div className="text-sm text-muted-foreground">Height:</div>
+              <div className="text-sm font-medium">{patient.height ? `${patient.height} cm` : "-"}</div>
+              <div className="text-sm text-muted-foreground">Weight:</div>
+              <div className="text-sm font-medium">{patient.weight ? `${patient.weight} kg` : "-"}</div>
+              <div className="text-sm text-muted-foreground">BMI:</div>
+              <div className="text-sm font-medium">{patient.bmi || "-"}</div>
             </div>
           </CardContent>
         </Card>
@@ -173,6 +179,34 @@ export default function PatientDetailPage() {
                   </Badge>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        )}
+        {patient.immunizationRecords && patient.immunizationRecords.length > 0 && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Immunization Records</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc ml-6 mt-1">
+                {patient.immunizationRecords.map((v, i) => (
+                  <li key={i}>{v}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+        {patient.labTestResults && patient.labTestResults.length > 0 && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Lab & Test Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc ml-6 mt-1">
+                {patient.labTestResults.map((v, i) => (
+                  <li key={i}>{v}</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         )}

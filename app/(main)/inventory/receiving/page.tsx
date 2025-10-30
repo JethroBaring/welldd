@@ -262,7 +262,7 @@ export default function InventoryWarehouseReceivingPage() {
                   </Table>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
                   {(() => {
                     const start = total === 0 ? 0 : startIdx + 1;
                     const end = endIdx;

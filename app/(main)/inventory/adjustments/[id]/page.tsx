@@ -51,6 +51,11 @@ export default function ViewAdjustmentPage() {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  const getUnifiedAdjustmentType = (type: string) =>
+    ["physical_count", "damage", "expired", "correction", "other"].includes(type)
+      ? "Quantity Adjustment"
+      : "Location Transfer";
+
   if (loading) {
     return (
       <div className="container mx-auto py-6">
@@ -108,28 +113,7 @@ export default function ViewAdjustmentPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Adjustment Number</label>
-                    <p className="font-semibold">{adjustment.adjustmentNumber}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Adjustment Date</label>
-                    <p className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      {format(new Date(adjustment.date), "MMMM dd, yyyy")}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Adjustment Type</label>
-                    <div className="mt-1">
-                      <Badge className={getAdjustmentTypeColor(adjustment.type)}>
-                        {formatAdjustmentType(adjustment.type)}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+              {getUnifiedAdjustmentType(adjustment.type) === "quantity_adjustment" || getUnifiedAdjustmentType(adjustment.type) === "Quantity Adjustment" ? (
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Item Name</label>
@@ -137,45 +121,106 @@ export default function ViewAdjustmentPage() {
                     <p className="text-sm text-muted-foreground">{adjustment.itemCode}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Batch Number</label>
-                    <p className="font-medium">{adjustment.batchNumber}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Adjustment Date</label>
+                    <p>{format(new Date(adjustment.date), "MMMM dd, yyyy")}</p>
+                  </div>
+                  {adjustment.approvedBy && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Approver</label>
+                      <p className="font-semibold">{adjustment.approvedBy}</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Adjustment Type</label>
+                    <Badge>{getUnifiedAdjustmentType(adjustment.type)}</Badge>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Net Change</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      {isPositiveAdjustment && <TrendingUp className="h-4 w-4 text-green-600" />}
-                      {isNegativeAdjustment && <TrendingDown className="h-4 w-4 text-red-600" />}
-                      <span className={`text-lg font-bold ${
-                        isPositiveAdjustment ? 'text-green-600' :
-                        isNegativeAdjustment ? 'text-red-600' : 'text-gray-600'
-                      }`}>
-                        {adjustment.difference === 0 ? "No change" :
-                         `${adjustment.difference > 0 ? '+' : ''}${adjustment.difference} units`}
-                      </span>
-                    </div>
+                    <label className="text-sm font-medium text-muted-foreground">Branch</label>
+                    <p>Main Branch</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Location</label>
+                    <p>Unassigned</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">New Quantity on Hand (Unit)</label>
+                    <p>{adjustment.quantityAfter}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Quantity on Hand (Unit)</label>
+                    <p>{adjustment.quantityBefore}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">New Converted Quantity (Inventory Unit)</label>
+                    <p>{adjustment.quantityAfter}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">On hand Converted Quantity (Inventory Unit)</label>
+                    <p>{adjustment.quantityBefore}</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
-                <div className="text-center">
-                  <label className="text-sm font-medium text-muted-foreground">Before</label>
-                  <p className="text-2xl font-bold">{adjustment.quantityBefore}</p>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Item Name</label>
+                    <p className="font-semibold">{adjustment.itemName}</p>
+                    <p className="text-sm text-muted-foreground">{adjustment.itemCode}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Adjustment Date</label>
+                    <p>{format(new Date(adjustment.date), "MMMM dd, yyyy")}</p>
+                  </div>
+                  {adjustment.approvedBy && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Approver</label>
+                      <p className="font-semibold">{adjustment.approvedBy}</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Adjustment Type</label>
+                    <Badge>{getUnifiedAdjustmentType(adjustment.type)}</Badge>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Branch</label>
+                    <p>Main Branch</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">Source Location</label>
+                      <p>Pharmacy Storage</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">Destination Location</label>
+                      <p>Clinic Room</p>
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <span className="font-semibold text-orange-500 border-b block mb-4">Quantity</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card className="p-2">
+                        <CardContent>
+                          <div className="font-bold mb-1">Source</div>
+                          <div className="text-muted-foreground text-sm mb-2">No source selected</div>
+                          <div className="text-3xl font-extrabold text-center">0</div>
+                          <div className="text-xs mt-1 text-center">Converted Quantity(Inventory Unit) 0</div>
+                        </CardContent>
+                      </Card>
+                      <Card className="p-2">
+                        <CardContent>
+                          <div className="font-bold mb-1">Destination</div>
+                          <div className="text-muted-foreground text-sm mb-2">No destination selected</div>
+                          <div className="text-3xl font-extrabold text-center">0</div>
+                          <div className="text-xs mt-1 text-center">Converted Quantity(Inventory Unit) 0</div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mt-6">
+                    <label className="text-sm font-medium text-muted-foreground">Quantity to Transfer *</label>
+                    <p>{adjustment.difference}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <label className="text-sm font-medium text-muted-foreground">After</label>
-                  <p className="text-2xl font-bold">{adjustment.quantityAfter}</p>
-                </div>
-                <div className="text-center">
-                  <label className="text-sm font-medium text-muted-foreground">Difference</label>
-                  <p className={`text-2xl font-bold ${
-                    isPositiveAdjustment ? 'text-green-600' :
-                    isNegativeAdjustment ? 'text-red-600' : 'text-gray-600'
-                  }`}>
-                    {adjustment.difference > 0 ? '+' : ''}{adjustment.difference}
-                  </p>
-                </div>
-              </div>
+              )}
 
               <div className="mt-6 pt-6 border-t">
                 <label className="text-sm font-medium text-muted-foreground">Reason for Adjustment</label>
@@ -258,7 +303,7 @@ export default function ViewAdjustmentPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Type:</span>
                 <Badge className={getAdjustmentTypeColor(adjustment.type)}>
-                  {formatAdjustmentType(adjustment.type)}
+                  {getUnifiedAdjustmentType(adjustment.type)}
                 </Badge>
               </div>
               <div className="flex justify-between">

@@ -82,6 +82,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </svg>
           </div>
         </div>
+
+        <Image
+          src="/login.png"
+          alt="Authentication Hero"
+          fill
+          style={{ objectFit: "cover" }}
+        />
       </div>
     </div>
   );

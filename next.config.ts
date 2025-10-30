@@ -9,14 +9,14 @@ const nextConfig: NextConfig = {
     // Ignore TypeScript errors during production builds
     ignoreBuildErrors: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/:path*`,
-      },
-    ];
-  },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/api/:path*",
+  //       destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/:path*`,
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;

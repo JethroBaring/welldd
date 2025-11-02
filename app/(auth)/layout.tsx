@@ -31,11 +31,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <div className="cross-vertical"></div>
             </div>
 
-            <div className="record record-1">
-              <div className="record-line"></div>
-              <div className="record-line"></div>
-              <div className="record-line"></div>
-              <div className="record-line"></div>
+            <div className="chart">
+              <div className="chart-bars">
+                <div className="chart-bar chart-bar-1"></div>
+                <div className="chart-bar chart-bar-2"></div>
+                <div className="chart-bar chart-bar-3"></div>
+                <div className="chart-bar chart-bar-4"></div>
+              </div>
             </div>
 
             <div className="clipboard">
@@ -60,6 +62,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
             <div className="circle"></div>
 
+            <div className="iv-bag">
+              <div className="iv-bag-container">
+                <div className="iv-bag-tab"></div>
+                <div className="iv-bag-liquid"></div>
+              </div>
+            </div>
+
             <div className="pill">
               <div className="pill-half"></div>
               <div className="pill-border"></div>
@@ -73,6 +82,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </svg>
           </div>
         </div>
+
+        <Image
+          src="/login.png"
+          alt="Authentication Hero"
+          fill
+          style={{ objectFit: "cover" }}
+        />
       </div>
     </div>
   );

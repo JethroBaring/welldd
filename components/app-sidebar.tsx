@@ -180,9 +180,14 @@ const navData = {
           roles: ["super_admin", "gso_staff", "admin_staff"],
         },
         {
-          title: "Medical Reports",
+          title: "Patient Reports",
           url: "/reports/medical",
           roles: ["super_admin", "medical_staff", "admin_staff"],
+        },
+        {
+          title: "Integrated Reports",
+          url: "/reports/integrated",
+          roles: ["super_admin", "admin_staff"],
         },
         {
           title: "Custom Reports",

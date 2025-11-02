@@ -44,12 +44,14 @@ export default function WarehouseReceivingPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [visibleCols, setVisibleCols] = useState({
     wrrNumber: true,
-    poNumber: true,
     date: true,
-    supplier: true,
-    location: true,
-    receivedBy: true,
     status: true,
+    poNumber: true,
+    location: true,
+    supplier: true,
+    receivedBy: true,
+    createdBy: true,
+    approver: true,
   });
 
   useEffect(() => {
@@ -66,13 +68,15 @@ export default function WarehouseReceivingPage() {
 
   const handleExport = () => {
     const headers: { key: string; label: string }[] = [];
-    if (visibleCols.wrrNumber) headers.push({ key: "wrrNumber", label: "WRR No." });
-    if (visibleCols.poNumber) headers.push({ key: "poNumber", label: "PO No." });
-    if (visibleCols.date) headers.push({ key: "date", label: "Date" });
-    if (visibleCols.supplier) headers.push({ key: "supplier", label: "Supplier" });
-    if (visibleCols.location) headers.push({ key: "location", label: "Location" });
-    if (visibleCols.receivedBy) headers.push({ key: "receivedBy", label: "Received By" });
+    if (visibleCols.wrrNumber) headers.push({ key: "wrrNumber", label: "Receiving no" });
+    if (visibleCols.date) headers.push({ key: "date", label: "Date Received" });
     if (visibleCols.status) headers.push({ key: "status", label: "Status" });
+    if (visibleCols.poNumber) headers.push({ key: "poNumber", label: "PO No." });
+    if (visibleCols.location) headers.push({ key: "location", label: "Location" });
+    if (visibleCols.supplier) headers.push({ key: "supplier", label: "Supplier" });
+    if (visibleCols.receivedBy) headers.push({ key: "receivedBy", label: "Received By" });
+    if (visibleCols.createdBy) headers.push({ key: "createdBy", label: "Created By" });
+    if (visibleCols.approver) headers.push({ key: "approver", label: "Approver" });
 
     const rows = filteredReports.map((r) =>
       headers.map(({ key }) => {
@@ -81,6 +85,10 @@ export default function WarehouseReceivingPage() {
             return r.supplier?.name ?? "";
           case "date":
             return format(new Date(r.date), "yyyy-MM-dd");
+          case "createdBy":
+            return r.createdBy ?? "";
+          case "approver":
+            return r.approver ?? "";
           default:
             // @ts-ignore
             return r[key] == null ? "" : String(r[key]);
@@ -200,13 +208,15 @@ export default function WarehouseReceivingPage() {
               <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {([
-                ["wrrNumber", "WRR No."],
-                ["poNumber", "PO No."],
-                ["date", "Date"],
-                ["supplier", "Supplier"],
-                ["location", "Location"],
-                ["receivedBy", "Received By"],
+                ["wrrNumber", "Receiving no"],
+                ["date", "Date Received"],
                 ["status", "Status"],
+                ["poNumber", "PO No."],
+                ["location", "Location"],
+                ["supplier", "Supplier"],
+                ["receivedBy", "Received By"],
+                ["createdBy", "Created By"],
+                ["approver", "Approver"],
               ] as [keyof typeof visibleCols, string][]).map(([key, label]) => (
                 <DropdownMenuCheckboxItem
                   key={key}
@@ -231,13 +241,15 @@ export default function WarehouseReceivingPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              {visibleCols.wrrNumber && <TableHead className="pl-4">WRR Number</TableHead>}
-              {visibleCols.poNumber && <TableHead>PO Number</TableHead>}
-              {visibleCols.date && <TableHead>Date</TableHead>}
-              {visibleCols.supplier && <TableHead>Supplier</TableHead>}
-              {visibleCols.location && <TableHead>Location</TableHead>}
-              {visibleCols.receivedBy && <TableHead>Received By</TableHead>}
+              {visibleCols.wrrNumber && <TableHead className="pl-4">Receiving no</TableHead>}
+              {visibleCols.date && <TableHead>Date Received</TableHead>}
               {visibleCols.status && <TableHead>Status</TableHead>}
+              {visibleCols.poNumber && <TableHead>PO No.</TableHead>}
+              {visibleCols.location && <TableHead>Location</TableHead>}
+              {visibleCols.supplier && <TableHead>Supplier</TableHead>}
+              {visibleCols.receivedBy && <TableHead>Received By</TableHead>}
+              {visibleCols.createdBy && <TableHead>Created By</TableHead>}
+              {visibleCols.approver && <TableHead>Approver</TableHead>}
               <TableHead className="text-center pr-4">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -270,21 +282,20 @@ export default function WarehouseReceivingPage() {
                   {visibleCols.wrrNumber && (
                     <TableCell className="font-medium pl-4">{report.wrrNumber}</TableCell>
                   )}
-                  {visibleCols.poNumber && <TableCell>{report.poNumber}</TableCell>}
                   {visibleCols.date && (
                     <TableCell>{format(new Date(report.date), "MMM dd, yyyy")}</TableCell>
                   )}
-                  {visibleCols.supplier && <TableCell>{report.supplier.name}</TableCell>}
-                  {visibleCols.location && <TableCell>{report.location}</TableCell>}
-                  {visibleCols.receivedBy && <TableCell>{report.receivedBy}</TableCell>}
                   {visibleCols.status && (
                     <TableCell>
                       <StatusBadge status={report.status} />
-                      {report.hasDiscrepancy && (
-                        <span className="ml-2 text-xs text-orange-600">Has Discrepancy</span>
-                      )}
                     </TableCell>
                   )}
+                  {visibleCols.poNumber && <TableCell>{report.poNumber}</TableCell>}
+                  {visibleCols.location && <TableCell>{report.location}</TableCell>}
+                  {visibleCols.supplier && <TableCell>{report.supplier.name}</TableCell>}
+                  {visibleCols.receivedBy && <TableCell>{report.receivedBy}</TableCell>}
+                  {visibleCols.createdBy && <TableCell>{report.createdBy ?? ""}</TableCell>}
+                  {visibleCols.approver && <TableCell>{report.approver ?? ""}</TableCell>}
                   <TableCell className="text-right pr-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
                       <Link href={`/purchasing/receiving/${report.id}/edit`}>

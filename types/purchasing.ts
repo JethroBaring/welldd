@@ -107,6 +107,8 @@ export interface WarehouseReceivingReport {
   remarks?: string;
   createdAt: Date;
   updatedAt: Date;
+  createdBy?: string;
+  approver?: string;
 }
 
 export interface PurchaseInvoice {

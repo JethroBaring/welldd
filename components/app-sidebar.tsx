@@ -263,12 +263,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <a href="/dashboard" className="px-2">
+        <a href="/dashboard" className="flex justify-center items-center px-2">
           <Image
             src="/fullname-white-logo.png"
             alt="WellSync Logo"
-            width={100}
-            height={100}
+            width={150}
+            height={150}
           />
         </a>
       </SidebarHeader>

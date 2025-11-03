@@ -623,8 +623,8 @@ All Phase 1 modules have been successfully implemented with:
 
 ## 📞 Support & Documentation
 
-For additional information:
-- Review the specifications document: `Wellsync - HITs Dalaguete Specs.md`
+- For additional information:
+- Review the specifications document: `WellSync - HITs Dalaguete Specs.md`
 - Check component documentation in `/components/`
 - Review type definitions in `/types/`
 - Examine mock data structure in `/lib/mock-data/`

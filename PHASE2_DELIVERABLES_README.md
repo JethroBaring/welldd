@@ -1,6 +1,6 @@
-# Wellsync Dalaguete - Phase 2 Deliverables
+# WellSync Dalaguete - Phase 2 Deliverables
 
-**Project**: Wellsync Dalaguete Healthcare Information System  
+**Project**: WellSync Dalaguete Healthcare Information System  
 **Phase**: 2 - Enhanced Modules & System Architecture  
 **Date**: January 2025  
 **Status**: ✅ Complete
@@ -22,7 +22,7 @@
 
 ## 🎯 Overview
 
-Phase 2 of the Wellsync Dalaguete project delivers two critical components:
+Phase 2 of the WellSync Dalaguete project delivers two critical components:
 
 1. **Complete System ERD**: A comprehensive Entity Relationship Diagram documenting the entire system architecture, including all modules, entities, and relationships
 2. **Add User Functionality**: A fully implemented user management system with role-based access control (RBAC)
@@ -619,7 +619,7 @@ This software is proprietary and confidential. Unauthorized copying, distributio
 
 ## 🙏 Acknowledgments
 
-- **Development Team**: Wellsync Development Team
+- **Development Team**: WellSync Development Team
 - **Stakeholders**: Municipality of Dalaguete LGU
 - **Healthcare Staff**: For requirements and feedback
 - **Open Source**: Next.js, React, Radix UI, Tailwind CSS communities

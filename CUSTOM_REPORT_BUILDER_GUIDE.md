@@ -1,6 +1,6 @@
 # Custom Report Builder - Implementation Guide
 
-**Project**: Wellsync Dalaguete Healthcare Information System  
+**Project**: WellSync Dalaguete Healthcare Information System  
 **Feature**: Custom Report Builder  
 **Version**: 2.0  
 **Last Updated**: January 2025

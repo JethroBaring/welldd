@@ -626,7 +626,7 @@ npm start
 
 ## 📝 Additional Resources
 
-- **Specifications:** `Wellsync - HITs Dalaguete Specs.md`
+- **Specifications:** `WellSync - HITs Dalaguete Specs.md`
 - **Phase 1 Details:** `PHASE1_IMPLEMENTATION_SUMMARY.md`
 - **Phase 2 Details:** `PHASE2_IMPLEMENTATION_SUMMARY.md`
 - **Components:** `/components/` directory

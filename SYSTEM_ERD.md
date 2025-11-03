@@ -1,8 +1,8 @@
-# Wellsync Dalaguete - System ERD (Entity Relationship Diagram)
+# WellSync Dalaguete - System ERD (Entity Relationship Diagram)
 
 ## Complete System Architecture
 
-This document provides a comprehensive Entity Relationship Diagram (ERD) for the entire Wellsync Dalaguete Healthcare Information System.
+This document provides a comprehensive Entity Relationship Diagram (ERD) for the entire WellSync Dalaguete Healthcare Information System.
 
 ## Mermaid ERD Diagram
 

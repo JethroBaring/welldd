@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Add User functionality is a core feature of the Wellsync Dalaguete Healthcare Information System that allows Super Admins to create and manage user accounts with role-based access control (RBAC).
+The Add User functionality is a core feature of the WellSync Dalaguete Healthcare Information System that allows Super Admins to create and manage user accounts with role-based access control (RBAC).
 
 ## Table of Contents
 
@@ -362,13 +362,13 @@ else {
 
 #### Email Template Structure
 
-**Subject**: Welcome to Wellsync Dalaguete - Your Account Credentials
+**Subject**: Welcome to WellSync Dalaguete - Your Account Credentials
 
 **Body**:
 ```
 Hello [First Name] [Last Name],
 
-Your account has been created for the Wellsync Dalaguete Healthcare Information System.
+Your account has been created for the WellSync Dalaguete Healthcare Information System.
 
 Login Credentials:
 - Username: [email]
@@ -387,7 +387,7 @@ Security Recommendations:
 For support, contact: support@dalaguete.gov.ph
 
 Best regards,
-Wellsync Dalaguete Admin Team
+WellSync Dalaguete Admin Team
 ```
 
 #### Email Service Integration
@@ -406,7 +406,7 @@ import { sendEmail } from '@/lib/email';
 async function sendCredentialsEmail(user: User, password: string) {
   await sendEmail({
     to: user.email,
-    subject: 'Welcome to Wellsync Dalaguete - Your Account Credentials',
+  subject: 'Welcome to WellSync Dalaguete - Your Account Credentials',
     template: 'user-credentials',
     data: {
       firstName: user.firstName,

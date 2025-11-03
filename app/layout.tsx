@@ -11,7 +11,7 @@ const poppins = Poppins({
   });
 
 export const metadata: Metadata = {
-  title: "Wellsync",
+  title: "WellSync",
 };
 
 export default function RootLayout({

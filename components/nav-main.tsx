@@ -2,6 +2,7 @@
 
 import { IconCirclePlusFilled, IconMail, IconChevronRight, type Icon } from "@tabler/icons-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,11 +27,24 @@ interface NavItem {
 
 export function NavMain({ items }: { items: NavItem[] }) {
   const [openItems, setOpenItems] = useState<string[]>([]);
+  const pathname = usePathname();
 
   const toggleItem = (title: string) => {
     setOpenItems(prev =>
       prev.includes(title) ? prev.filter(item => item !== title) : [...prev, title]
     );
+  };
+
+  // Check if a path is active
+  const isPathActive = (url: string) => {
+    if (url === "#") return false;
+    return pathname === url || pathname.startsWith(url + "/");
+  };
+
+  // Check if any subitem is active
+  const hasActiveSubItem = (subitems?: NavItem[]) => {
+    if (!subitems) return false;
+    return subitems.some(subItem => isPathActive(subItem.url));
   };
 
   return (
@@ -40,6 +54,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
           {items.map((item) => {
             const hasSubItems = item.items && item.items.length > 0;
             const isOpen = openItems.includes(item.title);
+            const isActive = isPathActive(item.url) || hasActiveSubItem(item.items);
 
             return (
               <div key={item.title}>
@@ -48,6 +63,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     asChild={!hasSubItems}
                     onClick={hasSubItems ? () => toggleItem(item.title) : undefined}
                     tooltip={item.title}
+                    isActive={isActive && !hasSubItems}
                   >
                     {hasSubItems ? (
                       <div className="flex items-center gap-2 w-full">
@@ -73,7 +89,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   <SidebarMenuSub>
                     {item.items!.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton asChild isActive={isPathActive(subItem.url)}>
                           <Link href={subItem.url}>
                             <span>{subItem.title}</span>
                           </Link>

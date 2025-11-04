@@ -10,7 +10,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 export function NavSecondary({
   items,
@@ -23,17 +25,19 @@ export function NavSecondary({
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const pathname = usePathname();
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="group-data-[collapsible=icon]:gap-3">
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={pathname === item.url}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
+                <a href={item.url} className={cn("flex items-center", isCollapsed ? "justify-center gap-0" : "gap-2")}>
+                  <item.icon className={cn(isCollapsed && "size-6!")} />
+                  {!isCollapsed && <span>{item.title}</span>}
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

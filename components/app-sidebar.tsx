@@ -261,7 +261,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const filteredNavMain = filterNavByRole(navData.navMain);
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <a href="/dashboard" className="flex justify-center items-center px-2">
           <Image
@@ -269,6 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             alt="WellSync Logo"
             width={150}
             height={150}
+            className="group-data-[collapsible=icon]:hidden"
           />
         </a>
       </SidebarHeader>

@@ -263,7 +263,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <a href="/dashboard" className="flex justify-center items-center px-2">
+        <a
+          href="/dashboard"
+          className="flex justify-center items-center px-2 group-data-[collapsible=icon]:mb-6"
+        >
           <Image
             src="/fullname-white-logo.png"
             alt="WellSync Logo"

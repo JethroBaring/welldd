@@ -271,6 +271,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             height={150}
             className="group-data-[collapsible=icon]:hidden"
           />
+          <Image
+            src="/white-logo.png"
+            alt="WellSync Icon"
+            width={40}
+            height={40}
+            className="hidden group-data-[collapsible=icon]:block"
+          />
         </a>
       </SidebarHeader>
       <SidebarContent>

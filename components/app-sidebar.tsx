@@ -270,8 +270,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <Image
             src="/fullname-white-logo.png"
             alt="WellSync Logo"
-            width={150}
-            height={150}
+            width={120}
+            height={120}
             className="group-data-[collapsible=icon]:hidden"
           />
           <Image

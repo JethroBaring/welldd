@@ -72,7 +72,6 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   >
                     <PopoverTrigger asChild>
                       <SidebarMenuButton
-                        tooltip={item.title}
                         isActive={isActive}
                         className="group-data-[collapsible=icon]:overflow-visible"
                       >
@@ -96,7 +95,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                             href={subItem.url}
                             className={cn(
                               "px-3 py-2 rounded-md text-sm hover:bg-accent hover:text-white transition-colors",
-                              isPathActive(subItem.url) && "bg-accent font-medium"
+                              isPathActive(subItem.url) && "bg-accent text-white font-medium"
                             )}
                             onClick={() => setPopoverOpen(null)}
                           >

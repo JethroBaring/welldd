@@ -263,8 +263,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="p-0 h-16 mt-4 mb-6">
         <a
-          href="/dashboard"
-          className="relative h-full w-full flex items-center justify-start group-data-[collapsible=icon]:justify-center pl-6"
+          href="#"
+          className="relative h-full w-full flex items-center justify-start pl-6"
         >
           <Image
             src="/fullname-white-logo.png"
@@ -274,13 +274,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             priority
             className="object-contain transition-opacity duration-150 ease-out opacity-100 group-data-[collapsible=icon]:opacity-0"
           />
-          <Image
-            src="/white-logo.png"
-            alt="WellSync Icon"
-            fill
-            priority
-            className="object-contain transition-opacity duration-150 ease-out opacity-0 group-data-[collapsible=icon]:opacity-100"
-          />
+          {/* Minimized icon positioned like nav item icons (fixed left offset) */}
+          <div className="w-14 h-14 absolute left-2 top-1/2 -translate-y-1/2 transition-opacity duration-150 ease-out opacity-0 group-data-[collapsible=icon]:opacity-100">
+            <Image
+              src="/white-logo.png"
+              alt="WellSync Icon"
+              fill
+              priority
+              className="object-contain"
+            />
+          </div>
         </a>
       </SidebarHeader>
       <SidebarContent>

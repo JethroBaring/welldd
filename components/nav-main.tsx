@@ -121,7 +121,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   >
                     {hasSubItems ? (
                       <div className="flex items-center gap-2 w-full">
-                        {item.icon && <item.icon className="h-5 w-5 shrink-0 size-5! group-data-[collapsible=icon]:size-6!" />}
+                        {item.icon && (
+                          <item.icon
+                            className="size-6! shrink-0"
+                          />
+                        )}
                         <span className="flex-1">{item.title}</span>
                         <IconChevronRight
                           className={cn(
@@ -132,7 +136,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                       </div>
                     ) : (
                       <Link href={item.url} className={cn("flex items-center w-full", isCollapsed ? "justify-center gap-0" : "gap-2")}>
-                        {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isCollapsed && "size-6!")} />}
+                        {item.icon && <item.icon className="size-6! shrink-0" />}
                         {!isCollapsed && <span>{item.title}</span>}
                       </Link>
                     )}

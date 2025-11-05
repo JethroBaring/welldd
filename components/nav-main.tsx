@@ -66,7 +66,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
             if (hasSubItems && isCollapsed) {
               return (
                 <SidebarMenuItem key={item.title}>
-                    <Popover
+                  <Popover
                     open={popoverOpen === item.title}
                     onOpenChange={(open) => setPopoverOpen(open ? item.title : null)}
                   >
@@ -78,12 +78,12 @@ export function NavMain({ items }: { items: NavItem[] }) {
                       >
                         <div className="relative flex size-full items-center justify-start">
                           {item.icon && <item.icon className="size-6!" />}
-                          <span
+                          <i
                             aria-hidden
                             className="pointer-events-none absolute -right-1 top-1/2 -translate-y-1/2 text-base leading-none text-sidebar-foreground/70"
                           >
                             &rsaquo;
-                          </span>
+                          </i>
                         </div>
                       </SidebarMenuButton>
                     </PopoverTrigger>
@@ -135,7 +135,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         />
                       </div>
                     ) : (
-                      <Link href={item.url} className={cn("flex items-center w-full gap-2") }>
+                      <Link href={item.url} className={cn("flex items-center w-full gap-2")}>
                         {item.icon && <item.icon className="size-6! shrink-0" />}
                         {!isCollapsed && <span>{item.title}</span>}
                       </Link>

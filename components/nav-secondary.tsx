@@ -38,8 +38,8 @@ export function NavSecondary({
                 <a
                   href={item.url}
                   className={cn(
-                    "flex items-center justify-center",
-                    isCollapsed ? "gap-0" : "gap-2"
+                    "flex items-center w-full",
+                    isCollapsed ? "justify-center gap-0" : "gap-2"
                   )}
                 >
                   <item.icon className="size-6! shrink-0" />

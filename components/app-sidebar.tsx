@@ -265,7 +265,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <a
           href="/dashboard"
-          className="flex justify-center items-center px-2 mb-4 group-data-[collapsible=icon]:mb-6"
+          className="flex justify-center items-center px-2"
         >
           <Image
             src="/fullname-white-logo.png"

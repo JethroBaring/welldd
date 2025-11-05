@@ -266,7 +266,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <Image
             src="/fullname-white-logo.png"
             alt="WellSync Logo"
-            fill
+            width={130}
+            height={130}
             priority
             className="object-contain transition-opacity duration-150 ease-out opacity-100 group-data-[collapsible=icon]:opacity-0"
           />

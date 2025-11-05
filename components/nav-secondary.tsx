@@ -30,16 +30,15 @@ export function NavSecondary({
 
   return (
       <SidebarGroup {...props}>
-      <SidebarGroupContent className="group-data-[collapsible=icon]:items-center">
-        <SidebarMenu className="gap-3 group-data-[collapsible=icon]:items-center">
+      <SidebarGroupContent>
+        <SidebarMenu className="gap-3">
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={pathname === item.url}>
                 <a
                   href={item.url}
                   className={cn(
-                    "flex items-center w-full",
-                    isCollapsed ? "justify-center gap-0" : "gap-2"
+                    "flex items-center w-full gap-2"
                   )}
                 >
                   <item.icon className="size-6! shrink-0" />

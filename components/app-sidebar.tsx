@@ -282,7 +282,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={filteredNavMain} />
       </SidebarContent>
-      <SidebarFooter className="group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:pb-2">
+      <SidebarFooter className="group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:pb-2">
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarFooter>
     </Sidebar>

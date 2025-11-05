@@ -55,8 +55,8 @@ export function NavMain({ items }: { items: NavItem[] }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2 group-data-[collapsible=icon]:items-center">
-        <SidebarMenu className=" gap-3 group-data-[collapsible=icon]:items-center">
+      <SidebarGroupContent className="flex flex-col gap-2">
+        <SidebarMenu className=" gap-3">
           {items.map((item) => {
             const hasSubItems = item.items && item.items.length > 0;
             const isOpen = openItems.includes(item.title);
@@ -66,7 +66,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
             if (hasSubItems && isCollapsed) {
               return (
                 <SidebarMenuItem key={item.title}>
-                  <Popover 
+                    <Popover
                     open={popoverOpen === item.title}
                     onOpenChange={(open) => setPopoverOpen(open ? item.title : null)}
                   >
@@ -76,7 +76,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         isActive={isActive}
                         className="group-data-[collapsible=icon]:overflow-visible"
                       >
-                        <div className="relative flex size-full items-center justify-center">
+                        <div className="relative flex size-full items-center justify-start">
                           {item.icon && <item.icon className="size-6!" />}
                           <span
                             aria-hidden
@@ -135,7 +135,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         />
                       </div>
                     ) : (
-                      <Link href={item.url} className={cn("flex items-center w-full", isCollapsed ? "justify-center gap-0" : "gap-2")}>
+                      <Link href={item.url} className={cn("flex items-center w-full gap-2") }>
                         {item.icon && <item.icon className="size-6! shrink-0" />}
                         {!isCollapsed && <span>{item.title}</span>}
                       </Link>

@@ -29,9 +29,9 @@ export function NavSecondary({
   const isCollapsed = state === 'collapsed';
 
   return (
-    <SidebarGroup {...props}>
-      <SidebarGroupContent>
-        <SidebarMenu className="group-data-[collapsible=icon]:gap-3">
+      <SidebarGroup {...props}>
+      <SidebarGroupContent className="group-data-[collapsible=icon]:items-center">
+        <SidebarMenu className="group-data-[collapsible=icon]:gap-3 group-data-[collapsible=icon]:items-center">
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={pathname === item.url}>

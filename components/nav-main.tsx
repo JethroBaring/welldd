@@ -55,8 +55,8 @@ export function NavMain({ items }: { items: NavItem[] }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu className="group-data-[collapsible=icon]:gap-3">
+      <SidebarGroupContent className="flex flex-col gap-2 group-data-[collapsible=icon]:items-center">
+        <SidebarMenu className="group-data-[collapsible=icon]:gap-3 group-data-[collapsible=icon]:items-center">
           {items.map((item) => {
             const hasSubItems = item.items && item.items.length > 0;
             const isOpen = openItems.includes(item.title);

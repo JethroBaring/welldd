@@ -64,7 +64,7 @@ function TabsList({
     >
       {props.children}
       <span
-        className="absolute bottom-0 h-[3px] bg-teal-600 transition-all duration-300 ease-out"
+        className="absolute bottom-[-1.5px] h-0.5 bg-teal-600 transition-all duration-300 ease-out"
         style={indicatorStyle}
       />
     </TabsPrimitive.List>

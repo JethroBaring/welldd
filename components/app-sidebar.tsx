@@ -268,14 +268,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             alt="WellSync Logo"
             fill
             priority
-            className="object-contain transition-opacity duration-300 ease-in-out opacity-100 group-data-[collapsible=icon]:opacity-0"
+            className="object-contain transition-opacity duration-150 ease-out opacity-100 group-data-[collapsible=icon]:opacity-0"
           />
           <Image
             src="/white-logo.png"
             alt="WellSync Icon"
             fill
             priority
-            className="object-contain transition-opacity duration-300 ease-in-out opacity-0 group-data-[collapsible=icon]:opacity-100"
+            className="object-contain transition-opacity duration-150 ease-out opacity-0 group-data-[collapsible=icon]:opacity-100"
           />
         </a>
       </SidebarHeader>

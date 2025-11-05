@@ -87,7 +87,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         </div>
                       </SidebarMenuButton>
                     </PopoverTrigger>
-                    <PopoverContent side="right" align="start" className="w-56 p-2">
+                    <PopoverContent side="right" align="start" sideOffset={16} className="w-56 p-2">
                       <div className="text-sm font-medium mb-2">{item.title}</div>
                       <div className="flex flex-col gap-1">
                         {item.items!.map((subItem) => (

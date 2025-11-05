@@ -248,7 +248,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
-  // Filter navigation items based on current role
   const filterNavByRole = (items: any[]): any[] => {
     return items
       .filter((item) => !item.roles || item.roles.includes(effectiveRole))
@@ -262,24 +261,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <a
-          href="/dashboard"
-          className="flex justify-center items-center px-2"
-        >
+      <SidebarHeader className="p-0 h-16 mt-4 mb-6">
+        <a href="/dashboard" className="relative h-full w-full flex items-center justify-center px-2">
           <Image
             src="/fullname-white-logo.png"
             alt="WellSync Logo"
-            width={120}
-            height={120}
-            className="group-data-[collapsible=icon]:hidden"
+            fill
+            priority
+            className="object-contain transition-opacity duration-300 ease-in-out opacity-100 group-data-[collapsible=icon]:opacity-0"
           />
           <Image
             src="/white-logo.png"
             alt="WellSync Icon"
-            width={40}
-            height={40}
-            className="hidden group-data-[collapsible=icon]:block"
+            fill
+            priority
+            className="object-contain transition-opacity duration-300 ease-in-out opacity-0 group-data-[collapsible=icon]:opacity-100"
           />
         </a>
       </SidebarHeader>

@@ -64,7 +64,7 @@ function TabsList({
     >
       {props.children}
       <span
-        className="absolute bottom-[-1.5px] h-0.5 bg-teal-600 transition-all duration-300 ease-out"
+        className="absolute bottom-[-1.5px] h-0.5 bg-sidebar transition-all duration-300 ease-out"
         style={indicatorStyle}
       />
     </TabsPrimitive.List>
@@ -83,7 +83,7 @@ function TabsTrigger({
         "hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
-        "data-[state=active]:text-teal-600",
+        "data-[state=active]:text-sidebar",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}

@@ -261,7 +261,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="p-0 h-16 mt-4 mb-6">
+      <SidebarHeader className="p-0 h-16 mt-6 mb-6">
         <a
           href="#"
           className="relative h-full w-full flex items-center justify-start pl-6"

@@ -1,0 +1,1651 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PriceType {
+  SELLING
+  PURCHASING
+
+  @@map("price_type")
+}
+
+enum InventoryAdjustmentType {
+  LOCATION_TRANSFER
+  QUANTITY_ADJUSTMENT
+}
+
+enum UserRole {
+  MEDICAL_STAFF
+  GSO_ADMIN
+  RHU_HEAD
+  SUPER_ADMIN
+}
+
+// Core Models (Required by Navigation)
+
+model User {
+  id             Int       @id @default(autoincrement())
+  first_name     String    @default("")
+  middle_name    String?   @default("")
+  last_name      String    @default("")
+  suffix         String?   @default("")
+  contact_number String?   @default("")
+  role           UserRole
+  email          String    @unique
+  password       String
+  lgu_id         Int?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  user_logs UserLog[]
+
+  suppliersCreated          Supplier[]           @relation("UserToSupplierCreated")
+  purchaseRequestsCreated   PurchaseRequest[]    @relation("UserToPurchaseRequestCreated")
+  purchaseOrdersCreated     PurchaseOrder[]      @relation("UserToPurchaseOrderCreated")
+  WarehouseReceivingCreated WarehouseReceiving[] @relation("UserToWarehouseReceivingCreated")
+
+  deliveriesCreated       Delivery[]        @relation("UserToDeliveryCreated")
+  purchaseInvoicesCreated PurchaseInvoice[] @relation("UserToPurchaseInvoiceCreated")
+  JournalEntry            JournalEntry[]
+
+  inventoryAdjustmentsCreated InventoryAdjustment[] @relation("UserToInventoryAdjustmentCreated")
+
+  stockIssuancesCreated         StockIssuance[]          @relation("UserToStockIssuanceCreated")
+  stockIssuanceReceivingCreated StockIssuanceReceiving[] @relation("UserToStockIssuanceReceivingCreated")
+
+  // Patient Relations
+  patientsCreated Patient[]       @relation("UserToPatientCreated")
+  medicalRecords  MedicalRecord[] @relation("DoctorToMedicalRecord")
+
+  // LGU Relations
+  lguCreated                  LGU[]                         @relation("UserToLGUCreated")
+  SupplierApprover            SupplierApprover[]
+  PurchaseOrderApprovers      PurchaseOrderApprovers[]
+  WarehouseReceivingApprovers WarehouseReceivingApprovers[]
+  PurchaseInvoiceApprover     PurchaseInvoiceApprover[]
+  JournalEntryApprovers       JournalEntryApprovers[]
+
+  Notificaton                 Notificaton[]
+  InventoryAdjustmentApprover InventoryAdjustmentApprover[]
+  InventoryMovement           InventoryMovement[]
+  StockIssuanceApprover       StockIssuanceApprover[]
+
+  @@map("users")
+}
+
+model UserLog {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  title      String
+  message    String
+  created_at DateTime @default(now())
+  User       User     @relation(fields: [user_id], references: [id])
+
+  @@map("user_logs")
+}
+
+// Supplier Management
+model Supplier {
+  id                       Int     @id @default(autoincrement())
+  supplier_name            String  @default("")
+  address                  String  @default("")
+  email                    String  @default("")
+  primary_contact_number   String? @default("")
+  secondary_contact_number String? @default("")
+  website                  String  @default("")
+  tin_number               String  @default("")
+  tax_type                 String  @default("")
+  withholding_tax_percent  Decimal @default(0) @db.Decimal(15, 2)
+  status                   String  @default("")
+  is_denied                Boolean @default(false)
+  remarks                  String  @default("") @db.Text
+  credit_terms             String  @default("")
+  limit                    Decimal @default(0) @db.Decimal(15, 2)
+  is_active                Boolean @default(true)
+
+  lgu_id     Int       @default(1)
+  created_by Int       @default(1)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  creator                    User                         @relation("UserToSupplierCreated", fields: [created_by], references: [id])
+  purchaseRequests           PurchaseRequest[]
+  purchaseOrders             PurchaseOrder[]
+  SupplierLog                SupplierLog[]
+  approvers                  SupplierApprover[]
+  itemVariations             SupplierItemVariation[]
+  WarehouseReceivingMovement WarehouseReceivingMovement[]
+  itemVariationPrices        ItemVariationPrice[]
+
+  @@map("suppliers")
+}
+
+model SupplierApprover {
+  supplier_id  Int
+  user_id      Int
+  has_approved Boolean  @default(false)
+  supplier     Supplier @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([supplier_id, user_id])
+  @@map("supplier_approvers")
+}
+
+model SupplierLog {
+  id          Int      @id @default(autoincrement())
+  supplier_id Int
+  title       String   @default("")
+  message     String   @default("") @db.Text
+  created_at  DateTime @default(now())
+  Supplier    Supplier @relation(fields: [supplier_id], references: [id])
+
+  @@map("supplier_logs")
+}
+
+// Warehouse Management
+model Warehouse {
+  id             Int       @id @default(autoincrement())
+  warehouse_name String    @default("") @db.VarChar(255)
+  contact_number String    @default("") @db.VarChar(50)
+  address        String    @default("") @db.VarChar(255)
+  remarks        String    @default("") @db.Text
+  lgu_id         Int       @default(1)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now())
+  deleted_at     DateTime?
+
+  WarehouseLog WarehouseLog[]
+
+  @@map("warehouses")
+}
+
+model WarehouseLog {
+  id           Int       @id @default(autoincrement())
+  warehouse_id Int
+  title        String    @default("")
+  message      String    @default("") @db.Text
+  created_at   DateTime  @default(now())
+  Warehouse    Warehouse @relation(fields: [warehouse_id], references: [id])
+
+  @@map("warehouse_logs")
+}
+
+// Item Management
+model Item {
+  id               Int       @id @default(autoincrement())
+  item_code        String    @default("")
+  item_name        String    @default("")
+  item_type        String    @default("")
+  is_perishable    Boolean   @default(false)
+  brand            String?   @default("")
+  status           String    @default("Active")
+  default_price    Decimal?  @default(0) @db.Decimal(15, 2)
+  item_description String?   @default("") @db.Text
+  maximum_quantity Decimal?  @default(0) @db.Decimal(30, 17)
+  minimum_quantity Decimal?  @default(0) @db.Decimal(30, 17)
+  unit_id          Int       @default(1)
+  sub_unit_id      Int?
+  lgu_id           Int       @default(1)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+  deleted_at       DateTime?
+
+  ItemLog  ItemLog[]
+  unit     Unit      @relation("ItemToUnit", fields: [unit_id], references: [id])
+  sub_unit Unit?     @relation("ItemToSubUnit", fields: [sub_unit_id], references: [id])
+
+  @@map("items")
+}
+
+model ItemLog {
+  id         Int      @id @default(autoincrement())
+  item_id    Int
+  title      String   @default("")
+  message    String   @default("") @db.Text
+  created_at DateTime @default(now())
+  Item       Item     @relation(fields: [item_id], references: [id])
+
+  @@map("item_logs")
+}
+
+// Procurement Models - Story 1.1: Purchase Request Feature
+model PurchaseRequest {
+  id            Int       @id @default(autoincrement())
+  pr_number     String    @default("New")
+  approved_by   String?   @default("")
+  approval_date DateTime?
+  deadline_date DateTime // Delivery Date
+  status        String    @default("Draft") // Draft, For Approval, Approved, Denied, PO Created
+  created_by    Int       @default(1)
+  pr_date       DateTime  @default(now()) // Requisition Date
+  remarks       String?   @default("") @db.Text
+  is_denied     Boolean   @default(false)
+  supplier_id   Int
+  department    String    @default("") // Cost Center: Ward A, Ward B, TB Program, Maternal Health, Admin Office, etc.
+  lgu_id        Int       @default(1)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now())
+  deleted_at    DateTime?
+
+  supplier             Supplier              @relation(fields: [supplier_id], references: [id])
+  creator              User                  @relation("UserToPurchaseRequestCreated", fields: [created_by], references: [id])
+  purchaseRequestItems PurchaseRequestItem[]
+  PurchaseRequestLog   PurchaseRequestLog[]
+  purchaseOrder        PurchaseOrder?
+
+  @@map("purchase_requests")
+}
+
+model PurchaseRequestLog {
+  id                  Int      @id @default(autoincrement())
+  purchase_request_id Int
+  title               String
+  message             String
+  created_at          DateTime @default(now())
+
+  purchaseRequest PurchaseRequest @relation(fields: [purchase_request_id], references: [id])
+
+  @@map("purchase_request_logs")
+}
+
+model PurchaseRequestItem {
+  id                  Int       @id @default(autoincrement())
+  purchase_request_id Int
+  item_variation_id   Int       @default(1)
+  quantity            Decimal   @default(1) @db.Decimal(30, 17)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now())
+  deleted_at          DateTime?
+
+  purchaseRequest PurchaseRequest @relation(fields: [purchase_request_id], references: [id], onDelete: Cascade)
+  itemVariation   ItemVariation   @relation(fields: [item_variation_id], references: [id])
+
+  @@map("purchase_request_items")
+}
+
+model PurchaseOrder {
+  id                Int      @id @default(autoincrement())
+  po_number         String   @default("")
+  po_date           DateTime
+  expected_delivery DateTime
+  created_by        Int      @default(1)
+  creator           User     @relation("UserToPurchaseOrderCreated", fields: [created_by], references: [id])
+
+  purchase_request_id Int?      @unique
+  supplier_id         Int
+  is_denied           Boolean   @default(false)
+  is_cancelled        Boolean   @default(false)
+  status              String    @default("")
+  invoice_status      String    @default("")
+  receive_status      String    @default("Not Received")
+  total_amount        Decimal   @default(0) @db.Decimal(15, 2)
+  remarks             String    @default("")
+  approved_by         String?   @default("")
+  is_manually_closed  Boolean   @default(false)
+  lgu_id              Int       @default(1)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now())
+  deleted_at          DateTime?
+
+  purchaseRequest PurchaseRequest? @relation(fields: [purchase_request_id], references: [id], onDelete: Cascade)
+  supplier        Supplier         @relation(fields: [supplier_id], references: [id])
+
+  purchaseOrderItem  PurchaseOrderItem[]
+  purchaseOrderLog   PurchaseOrderLogs[]
+  approvers          PurchaseOrderApprovers[]
+  warehouseReceiving WarehouseReceiving[]
+  purchaseInvoices   PurchaseInvoice[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id                Int     @id @default(autoincrement())
+  purchase_order_id Int
+  item_variation_id Int     @default(1)
+  is_promo_item     Boolean @default(false)
+  quantity          Decimal @default(1) @db.Decimal(30, 17)
+  unit_price        Decimal @default(0) @db.Decimal(15, 2)
+  discount          Decimal @default(0) @db.Decimal(15, 2)
+  taxes             Decimal @default(0) @db.Decimal(15, 2)
+
+  is_price_changed Boolean   @default(false)
+  changed_price    Decimal   @default(0) @db.Decimal(15, 2)
+  changed_discount Decimal   @default(0) @db.Decimal(15, 2)
+  amount           Decimal   @default(0) @db.Decimal(15, 2)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+  deleted_at       DateTime?
+
+  purchaseOrder          PurchaseOrder            @relation(fields: [purchase_order_id], references: [id], onDelete: Cascade)
+  warehouseReceivingItem WarehouseReceivingItem[]
+  itemVariation          ItemVariation            @relation(fields: [item_variation_id], references: [id])
+
+  @@map("purchase_order_items")
+}
+
+model PurchaseOrderApprovers {
+  id                Int     @id @default(autoincrement())
+  purchase_order_id Int
+  user_id           Int
+  has_approved      Boolean @default(false)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchase_order_id], references: [id])
+  user          User          @relation(fields: [user_id], references: [id])
+
+  @@map("purchase_order_approvers")
+}
+
+model PurchaseOrderLogs {
+  id                Int      @id @default(autoincrement())
+  purchase_order_id Int
+  title             String
+  message           String
+  created_at        DateTime @default(now())
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchase_order_id], references: [id])
+
+  @@map("purchase_order_logs")
+}
+
+// Story 1.3: Warehouse Receiving Report (WRR) with Batch-Level Tracking
+model WarehouseReceiving {
+  id                Int @id @default(autoincrement())
+  purchase_order_id Int
+
+  wrr_number        String    @default("")
+  dr_number         String    @default("") // Delivery Receipt number
+  received_by       String    @default("") // Logged-in user
+  status            String    @default("Draft") // Draft, Posted, Approved
+  is_denied         Boolean   @default(false)
+  disposal_status   String    @default("")
+  remarks           String    @default("") @db.Text
+  date_received     DateTime // Date Received
+  approved_by       String?   @default("")
+  approval_required Boolean   @default(false) // Configurable approval toggle
+  lgu_id            Int       @default(1)
+  created_at        DateTime  @default(now())
+  created_by        Int       @default(1)
+  updated_at        DateTime  @default(now())
+  deleted_at        DateTime?
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchase_order_id], references: [id])
+
+  warehouseReceivingItems WarehouseReceivingItem[]
+  warehouseLog            WarehouseReceivingLog[]
+
+  warehouseReceivingApprovers WarehouseReceivingApprovers[]
+  WarehouseReceivingMovement  WarehouseReceivingMovement[]
+  creator                     User                          @relation("UserToWarehouseReceivingCreated", fields: [created_by], references: [id])
+
+  @@map("warehouse_receiving")
+}
+
+model WarehouseReceivingItem {
+  id                     Int       @id @default(autoincrement())
+  warehouse_receiving_id Int
+  purchase_order_item_id Int
+  batch_lot_number       String    @default("") // Batch/Lot number from barcode scan
+  expiration_date        DateTime // Mandatory expiration date
+  manufacture_date       DateTime? // From barcode scan
+  received_quantity      Decimal   @default(0) @db.Decimal(30, 17)
+  ordered_quantity       Decimal   @default(0) @db.Decimal(30, 17) // For reference
+  remaining_quantity     Decimal   @default(0) @db.Decimal(30, 17) // Auto-calculated
+  discrepancy_quantity   Decimal   @default(0) @db.Decimal(30, 17) // Ordered - Received
+  discrepancy_remarks    String?   @default("") @db.Text // Mandatory if discrepancy exists
+  physical_condition     String    @default("Good") // Good, Damaged packaging, Near expiry
+  location_id            Int?
+  expiry_threshold_days  Int       @default(180) // Configurable threshold (e.g., 6 months)
+  is_near_expiry         Boolean   @default(false) // Warning for items expiring soon
+
+  standard_effect_quantity            Decimal? @db.Decimal(30, 17)
+  standard_pullout_allocated_quantity Decimal  @default(0) @db.Decimal(30, 17)
+
+  warehouseReceiving WarehouseReceiving @relation(fields: [warehouse_receiving_id], references: [id])
+  purchaseOrderItem  PurchaseOrderItem  @relation(fields: [purchase_order_item_id], references: [id])
+  serialNumbers      SerialNumber[]
+  location           Location?          @relation(fields: [location_id], references: [id])
+
+  @@map("warehouse_receiving_items")
+}
+
+model WarehouseReceivingApprovers {
+  id                     Int     @id @default(autoincrement())
+  warehouse_receiving_id Int
+  user_id                Int
+  has_approved           Boolean @default(false)
+
+  warehouseReceiving WarehouseReceiving @relation(fields: [warehouse_receiving_id], references: [id])
+  user               User               @relation(fields: [user_id], references: [id])
+
+  @@map("warehouse_receiving_approvers")
+}
+
+model WarehouseReceivingLog {
+  id                     Int      @id @default(autoincrement())
+  warehouse_receiving_id Int
+  title                  String
+  message                String
+  created_at             DateTime @default(now())
+
+  warehouseReceiving WarehouseReceiving @relation(fields: [warehouse_receiving_id], references: [id])
+
+  @@map("warehouse_receiving_logs")
+}
+
+model Inventory {
+  id                Int      @id @default(autoincrement())
+  item_variation_id Int      @default(1)
+  on_hand_quantity  Decimal  @default(0) @db.Decimal(30, 17)
+  lgu_id            Int      @default(1)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now())
+
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+
+  serialNumbers SerialNumber[]
+
+  @@map("inventory")
+}
+
+// Accounting Models
+model ChartOfAccount {
+  id           Int       @id @default(autoincrement())
+  account_code String
+  account_name String
+  category     String?
+  sub_category String?
+  remarks      String?
+  lgu_id       Int       @default(1)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+  deleted_at   DateTime?
+
+  logs                    ChartOfAccountLog[]
+  journalEntryDebitItems  JournalEntryDebitItem[]
+  journalEntryCreditItems JournalEntryCreditItem[]
+
+  @@map("chart_of_accounts")
+}
+
+model ChartOfAccountLog {
+  id                  Int      @id @default(autoincrement())
+  chart_of_account_id Int
+  title               String
+  message             String
+  created_at          DateTime @default(now())
+
+  chartOfAccount ChartOfAccount @relation(fields: [chart_of_account_id], references: [id])
+
+  @@map("chart_of_account_logs")
+}
+
+model PurchaseInvoice {
+  id                      Int      @id @default(autoincrement())
+  pi_number               String
+  invoice_date            DateTime
+  invoice_due_date        DateTime
+  status                  String
+  cv_status               String   @default("")
+  purchase_order_id       Int
+  supplier_invoice_number String
+  amount_due              Decimal  @default(0) @db.Decimal(15, 2)
+  gross_amount            Decimal  @default(0) @db.Decimal(15, 2)
+  remarks                 String   @db.VarChar(1000)
+  journal_entry_id        Int      @unique
+
+  is_denied    Boolean   @default(false)
+  is_vattable  Boolean?
+  is_witholded Boolean?
+  approved_by  String    @default("")
+  created_by   Int       @default(1)
+  lgu_id       Int       @default(1)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @updatedAt
+  deleted_at   DateTime?
+
+  purchaseOrder            PurchaseOrder             @relation(fields: [purchase_order_id], references: [id])
+  journalEntry             JournalEntry              @relation(fields: [journal_entry_id], references: [id])
+  purchaseInvoiceApprovers PurchaseInvoiceApprover[]
+  purchaseInvoiceCharges   PurchaseInvoiceCharges[]
+  purchaseInvoiceLogs      PurchaseInvoiceLog[]
+  creator                  User                      @relation("UserToPurchaseInvoiceCreated", fields: [created_by], references: [id])
+
+  @@map("purchase_invoices")
+}
+
+model PurchaseInvoiceApprover {
+  id                  Int     @id @default(autoincrement())
+  purchase_invoice_id Int
+  user_id             Int
+  has_approved        Boolean @default(false)
+
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_id], references: [id])
+  user            User            @relation(fields: [user_id], references: [id])
+
+  @@map("purchase_invoice_approvers")
+}
+
+model PurchaseInvoiceCharges {
+  id                  Int     @id @default(autoincrement())
+  purchase_invoice_id Int
+  charge_id           Int     @default(1)
+  amount              Decimal @default(0) @db.Decimal(15, 2)
+
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_id], references: [id])
+  charge          Charge          @relation(fields: [charge_id], references: [id])
+
+  @@map("purchase_invoice_charges")
+}
+
+model PurchaseInvoiceLog {
+  id                  Int      @id @default(autoincrement())
+  purchase_invoice_id Int
+  title               String
+  message             String
+  created_at          DateTime @default(now())
+
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchase_invoice_id], references: [id])
+
+  @@map("purchase_invoice_logs")
+}
+
+model JournalEntry {
+  id                Int       @id @default(autoincrement())
+  journal_number    String
+  journal_date      DateTime
+  status            String
+  is_auto_generated Boolean   @default(false)
+  remarks           String    @db.VarChar(1000)
+  is_denied         Boolean   @default(false)
+  approved_date     DateTime?
+  approved_by       String?
+  created_by        Int       @default(1)
+  lgu_id            Int       @default(1)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+  deleted_at        DateTime?
+
+  purchaseInvoice         PurchaseInvoice?
+  journalEntryDebitItems  JournalEntryDebitItem[]
+  journalEntryCreditItems JournalEntryCreditItem[]
+  journalEntryApprovers   JournalEntryApprovers[]
+  journalEntryLogs        JournalEntryLogs[]
+
+  creator User @relation(fields: [created_by], references: [id])
+
+  @@map("journal_entries")
+}
+
+model JournalEntryDebitItem {
+  id               Int       @id @default(autoincrement())
+  journal_entry_id Int
+  account_id       Int
+  lgu_id           Int
+  price            Decimal   @db.Decimal(15, 2)
+  deleted_at       DateTime?
+
+  journalEntry JournalEntry   @relation(fields: [journal_entry_id], references: [id])
+  account      ChartOfAccount @relation(fields: [account_id], references: [id])
+
+  @@map("journal_entry_debit_items")
+}
+
+model JournalEntryCreditItem {
+  id               Int       @id @default(autoincrement())
+  journal_entry_id Int
+  account_id       Int
+  lgu_id           Int
+  price            Decimal   @db.Decimal(15, 2)
+  deleted_at       DateTime?
+
+  journalEntry JournalEntry   @relation(fields: [journal_entry_id], references: [id])
+  account      ChartOfAccount @relation(fields: [account_id], references: [id])
+
+  @@map("journal_entry_credit_items")
+}
+
+model JournalEntryApprovers {
+  id               Int     @id @default(autoincrement())
+  journal_entry_id Int
+  user_id          Int
+  has_approved     Boolean @default(false)
+
+  journalEntry JournalEntry @relation(fields: [journal_entry_id], references: [id])
+  user         User         @relation(fields: [user_id], references: [id])
+
+  @@map("journal_entry_approvers")
+}
+
+model JournalEntryLogs {
+  id               Int      @id @default(autoincrement())
+  journal_entry_id Int
+  title            String
+  message          String
+  created_at       DateTime @default(now())
+
+  journalEntry JournalEntry @relation(fields: [journal_entry_id], references: [id])
+
+  @@map("journal_entry_logs")
+}
+
+// Payment models removed
+
+model Notificaton {
+  id             Int       @id @default(autoincrement())
+  title          String    @default("")
+  message        String    @default("")
+  is_read        Boolean   @default(false)
+  redirect_route String    @default("")
+  created_at     DateTime  @default(now())
+  deleted_at     DateTime?
+  user_id        Int
+  user           User      @relation(fields: [user_id], references: [id])
+}
+
+model Charge {
+  id            Int       @id @default(autoincrement())
+  charge_name   String    @default("")
+  default_price Decimal   @default(0) @db.Decimal(15, 2)
+  lgu_id        Int       @default(1)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now())
+  deleted_at    DateTime?
+
+  charge_logs            ChargeLog[]
+  purchaseInvoiceCharges PurchaseInvoiceCharges[]
+
+  @@map("charges")
+}
+
+model ChargeLog {
+  id         Int      @id @default(autoincrement())
+  charge_id  Int
+  title      String
+  message    String
+  created_at DateTime @default(now())
+
+  charge Charge @relation(fields: [charge_id], references: [id])
+
+  @@map("charge_logs")
+}
+
+// Customer model removed (LGU-to-LGU only)
+
+// Patient Management - Story 1.8: Patient Profile & Records Digitization
+model Patient {
+  id                             Int       @id @default(autoincrement())
+  patient_id                     String    @unique // Patient Unique ID used in UI
+  first_name                     String
+  middle_name                    String?   @default("")
+  last_name                      String
+  suffix                         String?   @default("")
+  date_of_birth                  DateTime // UI: dateOfBirth
+  age                            Int
+  gender                         String
+  contact_number                 String?   @default("")
+  email                          String?   @default("")
+  address                        String    @default("")
+  barangay                       String?   @default("")
+  barangay_id                    Int?
+  municipality                   String?   @default("")
+  province                       String?   @default("")
+  emergency_contact_name         String?   @default("")
+  emergency_contact_phone        String?   @default("")
+  emergency_contact_relationship String?   @default("")
+  blood_type                     String?   @default("")
+  allergies                      String[]
+  medical_history                String?   @default("") @db.Text
+  current_medications            String?   @default("") @db.Text
+  insurance_provider             String?   @default("")
+  insurance_number               String?   @default("")
+  status                         String    @default("Active") // UI: status
+  registration_date              DateTime  @default(now()) // UI: registrationDate
+  height                         Decimal?  @db.Decimal(6, 2)
+  weight                         Decimal?  @db.Decimal(6, 2)
+  bmi                            Decimal?  @db.Decimal(6, 2)
+  remarks                        String?   @default("")
+  lgu_id                         Int       @default(1)
+  created_by                     Int       @default(1)
+  created_at                     DateTime  @default(now())
+  updated_at                     DateTime  @default(now())
+  deleted_at                     DateTime?
+
+  creator             User                 @relation("UserToPatientCreated", fields: [created_by], references: [id])
+  patientLogs         PatientLog[]
+  medicalRecords      MedicalRecord[]
+  documents           PatientDocument[]
+  immunizationRecords ImmunizationRecord[]
+  labTestResults      LabTestResult[]
+  barang              Barangay?            @relation(fields: [barangay_id], references: [id])
+  appointments        Appointment[]
+  prescriptions       Prescription[] // Integrated with WellSync Inventory
+
+  @@map("patients")
+}
+
+model PatientLog {
+  id         Int      @id @default(autoincrement())
+  patient_id Int
+  title      String
+  message    String   @db.Text
+  created_at DateTime @default(now())
+  created_by Int
+
+  patient Patient @relation(fields: [patient_id], references: [id])
+
+  @@map("patient_logs")
+}
+
+model MedicalRecord {
+  id                  Int       @id @default(autoincrement())
+  patient_id          Int
+  record_number       String    @default("New")
+  record_date         DateTime  @default(now())
+  chief_complaint     String    @db.Text
+  diagnosis           String?   @db.Text
+  treatment           String?   @db.Text
+  prescription        String?   @db.Text
+  notes               String?   @db.Text
+  attending_physician String?   @default("")
+  follow_up_date      DateTime?
+  doctor_id           Int
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now())
+  deleted_at          DateTime?
+
+  patient     Patient                   @relation(fields: [patient_id], references: [id])
+  doctor      User                      @relation("DoctorToMedicalRecord", fields: [doctor_id], references: [id])
+  medicalLog  MedicalLog[]
+  medications MedicalRecordMedication[]
+
+  @@map("medical_records")
+}
+
+model MedicalRecordMedication {
+  id                Int      @id @default(autoincrement())
+  medical_record_id Int
+  name              String
+  dosage            String
+  frequency         String
+  duration          String
+  created_at        DateTime @default(now())
+
+  medicalRecord MedicalRecord @relation(fields: [medical_record_id], references: [id], onDelete: Cascade)
+
+  @@map("medical_record_medications")
+}
+
+model ImmunizationRecord {
+  id                Int       @id @default(autoincrement())
+  patient_id        Int
+  vaccine_name      String
+  date              DateTime?
+  description       String?   @default("") @db.Text
+  item_number       String?   @default("")
+  item_variation_id Int?
+  physician         String?   @default("")
+  created_at        DateTime  @default(now())
+
+  patient       Patient        @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+  itemVariation ItemVariation? @relation(fields: [item_variation_id], references: [id])
+
+  @@map("immunization_records")
+}
+
+model LabTestResult {
+  id           Int       @id @default(autoincrement())
+  patient_id   Int
+  test_name    String
+  result       String?   @default("")
+  date         DateTime?
+  normal_range String?   @default("")
+  physician    String?   @default("")
+  created_at   DateTime  @default(now())
+
+  patient Patient @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+
+  @@map("lab_test_results")
+}
+
+model MedicalLog {
+  id                Int      @id @default(autoincrement())
+  medical_record_id Int
+  title             String
+  message           String   @db.Text
+  created_at        DateTime @default(now())
+  created_by        Int
+
+  medicalRecord MedicalRecord @relation(fields: [medical_record_id], references: [id])
+
+  @@map("medical_logs")
+}
+
+// Patient Document Management - Story 1.8
+model PatientDocument {
+  id            Int       @id @default(autoincrement())
+  patient_id    Int
+  document_type String // "Scanned Record", "Lab Result", "X-Ray", "Prescription", etc.
+  file_name     String
+  file_path     String
+  file_format   String // PDF, JPG, PNG
+  upload_date   DateTime  @default(now())
+  indexed_data  String?   @db.Text // Key data: Name, DOB, Diagnosis
+  uploaded_by   Int
+  created_at    DateTime  @default(now())
+  deleted_at    DateTime?
+
+  patient Patient @relation(fields: [patient_id], references: [id])
+
+  @@map("patient_documents")
+}
+
+// Appointments - Story 1.8
+model Appointment {
+  id               Int       @id @default(autoincrement())
+  patient_id       Int
+  appointment_date DateTime
+  appointment_type String // "Check-up", "Follow-up", "Vaccination", etc.
+  status           String    @default("Scheduled") // Scheduled, Completed, Cancelled, No-show
+  notes            String?   @db.Text
+  attended_by      Int? // Doctor/Nurse user_id
+  created_by       Int
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+  deleted_at       DateTime?
+
+  patient Patient @relation(fields: [patient_id], references: [id])
+
+  @@map("appointments")
+}
+
+// Prescription Management - Integrated with Inventory
+model Prescription {
+  id                  Int       @id @default(autoincrement())
+  patient_id          Int
+  prescription_number String    @unique
+  prescription_date   DateTime  @default(now())
+  doctor_id           Int
+  status              String    @default("Pending") // Pending, Dispensed, Partially Dispensed, Cancelled
+  notes               String?   @db.Text
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now())
+  deleted_at          DateTime?
+
+  patient           Patient            @relation(fields: [patient_id], references: [id])
+  prescriptionItems PrescriptionItem[]
+
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id                 Int      @id @default(autoincrement())
+  prescription_id    Int
+  item_variation_id  Int // Links to medicine in inventory
+  dosage             String // "500mg", "10ml", etc.
+  frequency          String // "3x daily", "Every 8 hours", etc.
+  duration           String // "7 days", "2 weeks", etc.
+  quantity           Decimal  @db.Decimal(30, 17)
+  dispensed_quantity Decimal  @default(0) @db.Decimal(30, 17)
+  instructions       String?  @db.Text
+  created_at         DateTime @default(now())
+
+  prescription  Prescription  @relation(fields: [prescription_id], references: [id])
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+
+  @@map("prescription_items")
+}
+
+// LGU Management (Missing from original schema but needed for navData)
+model LGU {
+  id                Int       @id @default(autoincrement())
+  lgu_name          String
+  lgu_type          String // "province", "city", "municipality", "barangay"
+  province          String?   @default("")
+  city_municipality String?   @default("")
+  barangay          String?   @default("")
+  address           String    @default("")
+  contact_number    String?   @default("")
+  email             String?   @default("")
+  mayor_name        String?   @default("")
+  mayor_contact     String?   @default("")
+  created_by        Int       @default(1)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+  deleted_at        DateTime?
+
+  creator                        User                    @relation("UserToLGUCreated", fields: [created_by], references: [id])
+  lguLogs                        LGULog[]
+  LGUContacts                    LGUContact[]
+  stockIssuancesAsSource         StockIssuance[]         @relation("SourceLGU")
+  stockIssuancesAsDestination    StockIssuance[]         @relation("DestinationLGU")
+  stockIssuanceMovementsAsTarget StockIssuanceMovement[] @relation("TargetLGU")
+
+  barangays Barangay[]
+
+  @@map("lgus")
+}
+
+model Barangay {
+  id         Int      @id @default(autoincrement())
+  lgu_id     Int
+  name       String
+  code       String?  @default("")
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  lgu      LGU       @relation(fields: [lgu_id], references: [id])
+  patients Patient[]
+
+  @@map("barangays")
+}
+
+model LGULog {
+  id         Int      @id @default(autoincrement())
+  lgu_id     Int
+  title      String
+  message    String   @db.Text
+  created_at DateTime @default(now())
+  created_by Int
+
+  lgu LGU @relation(fields: [lgu_id], references: [id])
+
+  @@map("lgu_logs")
+}
+
+model LGUContact {
+  id         Int      @id @default(autoincrement())
+  lgu_id     Int
+  name       String
+  position   String
+  department String?
+  contact    String
+  email      String?
+  created_at DateTime @default(now())
+
+  lgu LGU @relation(fields: [lgu_id], references: [id])
+
+  @@map("lgu_contacts")
+}
+
+// Units and Measurements
+model Unit {
+  id         Int       @id @default(autoincrement())
+  unit_name  String    @default("")
+  lgu_id     Int       @default(1)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  unit_logs         UnitLogs[]
+  items_as_unit     Item[]          @relation("ItemToUnit")
+  items_as_sub_unit Item[]          @relation("ItemToSubUnit")
+  itemStandards     ItemStandard[]
+  itemVariations    ItemVariation[]
+
+  @@map("units")
+}
+
+model UnitLogs {
+  id         Int      @id @default(autoincrement())
+  unit_id    Int
+  title      String
+  message    String
+  created_at DateTime @default(now())
+
+  unit Unit @relation(fields: [unit_id], references: [id])
+
+  @@map("unit_logs")
+}
+
+// Story 1.6: Inventory Adjustments with Physical Counts and Disposals
+model InventoryAdjustment {
+  id                                  Int                     @id @default(autoincrement())
+  item_variation_id                   Int
+  adjustment_number                   String                  @default("")
+  status                              String                  @default("Draft") // Draft, For Approval, Approved
+  is_denied                           Boolean                 @default(false)
+  date                                DateTime // Date Received
+  remarks                             String                  @db.Text // Mandatory explanation
+  reason_code                         String                  @default("") // Physical Count Variance, Expired Medicine Disposal, etc.
+  unassigned_qty                      String?
+  created_by                          Int                     @default(1)
+  quantity                            Decimal                 @default(0) @db.Decimal(30, 17) // New Quantity on Hand
+  previous_quantity                   Decimal                 @default(0) @db.Decimal(30, 17) // Quantity on Hand (before adjustment)
+  quantity_difference                 Decimal                 @default(0) @db.Decimal(30, 17) // Auto-calculated
+  lgu_id                              Int                     @default(1)
+  location_id                         Int?
+  batch_lot_number                    String?                 @default("") // For batch-level disposal
+  expiry_date_reference               DateTime? // For expired medicine disposal
+  standard_effect_quantity            Decimal?                @db.Decimal(30, 17)
+  standard_pullout_allocated_quantity Decimal                 @default(0) @db.Decimal(30, 17)
+  created_at                          DateTime                @default(now())
+  updated_at                          DateTime                @default(now())
+  deleted_at                          DateTime?
+  source_storage_location_id          Int?
+  destination_storage_location_id     Int?
+  inventory_adjustment_type           InventoryAdjustmentType // Quantity Adjustment or Location Transfer
+
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+  location      Location?     @relation(fields: [location_id], references: [id])
+
+  inventoryAdjustmentLogs      InventoryAdjustmentLog[]
+  inventoryAdjustmentApprovers InventoryAdjustmentApprover[]
+  InventoryAdjustmentMovement  InventoryAdjustmentMovement[]
+
+  creator User @relation("UserToInventoryAdjustmentCreated", fields: [created_by], references: [id])
+
+  @@map("inventory_adjustments")
+}
+
+model InventoryAdjustmentApprover {
+  id                      Int     @id @default(autoincrement())
+  inventory_adjustment_id Int
+  user_id                 Int
+  has_approved            Boolean @default(false)
+
+  inventoryAdjustment InventoryAdjustment @relation(fields: [inventory_adjustment_id], references: [id])
+  user                User                @relation(fields: [user_id], references: [id])
+
+  @@map("inventory_adjustment_approvers")
+}
+
+model InventoryAdjustmentLog {
+  id                      Int      @id @default(autoincrement())
+  inventory_adjustment_id Int
+  title                   String
+  message                 String
+  created_at              DateTime @default(now())
+
+  inventoryAdjustment InventoryAdjustment @relation(fields: [inventory_adjustment_id], references: [id])
+
+  @@map("inventory_adjustment_logs")
+}
+
+model InventoryMovement {
+  id                Int       @id @default(autoincrement())
+  movement_datetime DateTime  @default(now())
+  transaction_type  String
+  ref_number        String
+  item_variation_id Int
+  item_name         String
+  item_type         String
+  lgu_id_ref        Int
+  lgu_name          String
+  beginning_qty     Decimal   @db.Decimal(30, 17)
+  qty               Decimal   @db.Decimal(30, 17)
+  ending_qty        Decimal   @db.Decimal(30, 17)
+  unit              String
+  remarks           String?   @db.Text
+  lgu_id            Int       @default(1)
+  created_by        Int       @default(1)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+  deleted_at        DateTime?
+
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+
+  creator User @relation(fields: [created_by], references: [id])
+
+  warehouseReceivingMovement  WarehouseReceivingMovement?
+  stockIssuanceMovement       StockIssuanceMovement?
+  inventoryAdjustmentMovement InventoryAdjustmentMovement?
+
+  @@map("inventory_movements")
+}
+
+model WarehouseReceivingMovement {
+  id                     Int @id @default(autoincrement())
+  inventory_movement_id  Int @unique
+  warehouse_receiving_id Int
+  supplier_id            Int
+
+  inventoryMovement  InventoryMovement  @relation(fields: [inventory_movement_id], references: [id])
+  warehouseReceiving WarehouseReceiving @relation(fields: [warehouse_receiving_id], references: [id])
+  supplier           Supplier           @relation(fields: [supplier_id], references: [id])
+
+  @@map("warehouse_receiving_movements")
+}
+
+model StockIssuanceMovement {
+  id                    Int  @id @default(autoincrement())
+  inventory_movement_id Int  @unique
+  stock_issuance_id     Int
+  target_lgu_id         Int?
+
+  inventoryMovement InventoryMovement @relation(fields: [inventory_movement_id], references: [id])
+  stockIssuance     StockIssuance     @relation(fields: [stock_issuance_id], references: [id])
+  targetLGU         LGU?              @relation("TargetLGU", fields: [target_lgu_id], references: [id])
+
+  @@map("stock_issuance_movements")
+}
+
+model InventoryAdjustmentMovement {
+  id                      Int @id @default(autoincrement())
+  inventory_movement_id   Int @unique
+  inventory_adjustment_id Int
+
+  inventoryMovement   InventoryMovement   @relation(fields: [inventory_movement_id], references: [id])
+  inventoryAdjustment InventoryAdjustment @relation(fields: [inventory_adjustment_id], references: [id])
+
+  @@map("inventory_adjustment_movements")
+}
+
+// Story 1.4: Stock Issuance with FEFO Logic for Inter-LGU Transfers
+model StockIssuance {
+  id                    Int       @id @default(autoincrement())
+  issuance_no           String    @default("New")
+  issuance_type         String // e.g., "LGU"
+  issuance_date         DateTime
+  delivery_date         DateTime
+  status                String    @default("Draft") // Draft, For Approval, Approved, Issued
+  delivery_status       String    @default("Not Delivered")
+  receive_status        String    @default("Not Received")
+  delivery_receipt_no   String    @default("")
+  source_lgu_id         Int       @default(1)
+  lgu_id                Int? // LGU destination for inter-LGU transfers
+  consignment_order_id  Int?
+  created_by            Int       @default(1)
+  remarks               String?   @default("") @db.Text // Physical condition notes
+  is_denied             Boolean   @default(false)
+  is_manually_closed    Boolean   @default(false)
+  fefo_enforced         Boolean   @default(true) // Enforce FEFO logic for item selection
+  expiry_threshold_days Int       @default(180) // Items <6 months highlighted
+  owner_lgu_id          Int       @default(1)
+  delivery_id           Int?
+  sales_order_id        Int?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @default(now())
+  deleted_at            DateTime?
+
+  source                LGU                      @relation("SourceLGU", fields: [source_lgu_id], references: [id])
+  destinationLGU        LGU?                     @relation("DestinationLGU", fields: [lgu_id], references: [id])
+  stockItems            StockIssuanceItem[]
+  logs                  StockIssuanceLog[]
+  approvers             StockIssuanceApprover[]
+  delivery              Delivery?                @relation("DeliveryToStockIssuance", fields: [delivery_id], references: [id])
+  StockIssuanceMovement StockIssuanceMovement[]
+  receivings            StockIssuanceReceiving[] // Receiving records from recipient LGU
+
+  creator User @relation("UserToStockIssuanceCreated", fields: [created_by], references: [id])
+
+  @@map("stock_issuance")
+}
+
+model StockIssuanceItem {
+  id                   Int       @id @default(autoincrement())
+  stock_issuance_id    Int
+  item_variation_id    Int
+  batch_lot_number     String    @default("") // Specific batch being transferred
+  expiration_date      DateTime? // Expiration date of batch
+  remaining_shelf_life Int? // Days until expiry (auto-calculated)
+  quantity             Decimal   @default(1) @db.Decimal(30, 17)
+  received_quantity    Decimal   @default(0) @db.Decimal(30, 17)
+  physical_condition   String    @default("Good") // Good, Damaged packaging, Near expiry
+  wrr_reference        String?   @default("") // Original WRR reference
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  stockIssuance StockIssuance  @relation(fields: [stock_issuance_id], references: [id], onDelete: Cascade)
+  itemVariation ItemVariation  @relation(fields: [item_variation_id], references: [id])
+  serialNumbers SerialNumber[]
+
+  @@map("stock_issuance_items")
+}
+
+// Story 1.4: Stock Issuance Receiving for Recipient LGUs
+model StockIssuanceReceiving {
+  id                Int       @id @default(autoincrement())
+  isr_number        String    @default("") // ISR No.
+  stock_issuance_id Int // ISS No. reference
+  date_received     DateTime
+  status            String    @default("Draft") // Draft, For Approval, Approved
+  is_denied         Boolean   @default(false)
+  received_by       Int // User from recipient LGU
+  remarks           String?   @default("") @db.Text
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+  deleted_at        DateTime?
+
+  stockIssuance StockIssuance                    @relation(fields: [stock_issuance_id], references: [id])
+  receivedBy    User                             @relation("UserToStockIssuanceReceivingCreated", fields: [received_by], references: [id])
+  items         StockIssuanceReceivingItem[]
+  approvers     StockIssuanceReceivingApprover[]
+
+  @@map("stock_issuance_receiving")
+}
+
+model StockIssuanceReceivingItem {
+  id                          Int     @id @default(autoincrement())
+  stock_issuance_receiving_id Int
+  stock_issuance_item_id      Int
+  issued_quantity             Decimal @db.Decimal(30, 17) // From ISS
+  received_quantity           Decimal @db.Decimal(30, 17) // Actual received
+  discrepancy_quantity        Decimal @default(0) @db.Decimal(30, 17) // Issued - Received
+  discrepancy_remarks         String? @default("") @db.Text // Required if discrepancy
+  physical_condition          String  @default("Good") // Condition upon receipt
+
+  stockIssuanceReceiving StockIssuanceReceiving @relation(fields: [stock_issuance_receiving_id], references: [id])
+
+  @@map("stock_issuance_receiving_items")
+}
+
+model StockIssuanceReceivingApprover {
+  id                          Int     @id @default(autoincrement())
+  stock_issuance_receiving_id Int
+  user_id                     Int
+  has_approved                Boolean @default(false)
+
+  stockIssuanceReceiving StockIssuanceReceiving @relation(fields: [stock_issuance_receiving_id], references: [id])
+
+  @@map("stock_issuance_receiving_approvers")
+}
+
+model StockIssuanceLog {
+  id                Int      @id @default(autoincrement())
+  stock_issuance_id Int
+  title             String
+  message           String   @db.Text
+  created_at        DateTime @default(now())
+
+  stockIssuance StockIssuance @relation(fields: [stock_issuance_id], references: [id])
+
+  @@map("stock_issuance_logs")
+}
+
+model StockIssuanceApprover {
+  id                Int       @id @default(autoincrement())
+  stock_issuance_id Int
+  user_id           Int
+  approved          Boolean   @default(false)
+  approved_at       DateTime?
+
+  stockIssuance StockIssuance @relation(fields: [stock_issuance_id], references: [id])
+  user          User          @relation(fields: [user_id], references: [id])
+
+  @@map("stock_issuance_approvers")
+}
+
+model Delivery {
+  id            Int       @id @default(autoincrement())
+  delivery_no   String    @default("")
+  delivery_date DateTime
+  status        String    @default("Draft") // e.g., "In Progress", "Delivered"
+  created_by    Int       @default(1)
+  remarks       String?   @default("") @db.Text
+  lgu_id        Int       @default(1)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now())
+  deleted_at    DateTime?
+
+  stockIssuances StockIssuance[] @relation("DeliveryToStockIssuance")
+  deliveryLogs   DeliveryLog[]
+  creator        User            @relation("UserToDeliveryCreated", fields: [created_by], references: [id])
+
+  @@map("deliveries")
+}
+
+model DeliveryLog {
+  id          Int      @id @default(autoincrement())
+  delivery_id Int
+  title       String
+  message     String   @db.Text
+  created_at  DateTime @default(now())
+
+  delivery Delivery @relation(fields: [delivery_id], references: [id])
+
+  @@map("delivery_logs")
+}
+
+// Item Standards and Variations - Story 1.5: Item Master Data Management
+model ItemStandard {
+  id                      Int       @id @default(autoincrement())
+  item_name               String // Generic name
+  dosage_form             String?   @default("") // tablet, capsule, syrup, injection, etc.
+  unit_id                 Int // inventory_unit
+  item_type               String // "Raw Material", "Finished Product", "Accessory", "Merchandise"
+  category_id             Int?
+  is_perishable           Boolean   @default(false)
+  default_price           Decimal   @default(0) @db.Decimal(15, 2) // Reference only, actual cost from PO
+  maximum_qty             Int       @default(0) // Maximum Stock Level
+  minimum_qty             Int       @default(0) // Reorder Level
+  storage_requirements    String?   @default("") // Room temperature, Refrigerated (2-8°C), Frozen, Controlled substance
+  reorder_level           Decimal   @default(0) @db.Decimal(30, 17) // Triggers "Reorder Items" in PO
+  maximum_stock_level     Decimal   @default(0) @db.Decimal(30, 17) // Overstocking warning
+  description             String?   @default("") @db.Text
+  remarks                 String    @default("") @db.Text
+  status                  String    @default("Active") // Active/Inactive
+  batch_tracking_enabled  Boolean   @default(true) // Auto-enabled for medicines
+  expiry_tracking_enabled Boolean   @default(true) // Mandatory for medicines
+  lgu_id                  Int       @default(1)
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  deleted_at              DateTime?
+
+  unit             Unit              @relation(fields: [unit_id], references: [id])
+  itemStandardLogs ItemStandardLog[]
+  itemVariations   ItemVariation[]
+  serialNumbers    SerialNumber[]
+
+  @@map("item_standards")
+}
+
+model ItemStandardLog {
+  id               Int      @id @default(autoincrement())
+  item_standard_id Int
+  title            String   @default("")
+  message          String   @default("") @db.Text
+  created_at       DateTime @default(now())
+
+  itemStandard ItemStandard @relation(fields: [item_standard_id], references: [id])
+
+  @@map("item_standard_logs")
+}
+
+model ItemVariation {
+  id                         Int       @id @default(autoincrement())
+  item_standard_id           Int
+  unit_id                    Int // Piece, Box, Bottle, Vial, Ampule, Tube, Sachet, Strip, etc.
+  lgu_id                     Int       @default(1)
+  variation_name             String // e.g., "Paracetamol 500mg", "Paracetamol 250mg/5mL Suspension"
+  brand_name                 String    @default("") // Brand Name field
+  sku                        String?   @default("")
+  upc                        String?   @default("")
+  barcode                    String?   @default("")
+  quantity_in_inventory_unit Decimal   @default(1) @db.Decimal(30, 17)
+  default_price              Decimal   @default(0) @db.Decimal(15, 2)
+  default_unit_price         Decimal   @default(0) @db.Decimal(15, 2)
+  is_active                  Boolean   @default(true)
+  is_base_variation          Boolean   @default(false)
+  total_inventory_quantity   Decimal   @default(0) @db.Decimal(30, 17) // Real-time sum across batches/locations
+  created_at                 DateTime  @default(now())
+  updated_at                 DateTime  @updatedAt
+  deleted_at                 DateTime?
+
+  itemStandard      ItemStandard         @relation(fields: [item_standard_id], references: [id])
+  unit              Unit                 @relation(fields: [unit_id], references: [id])
+  prices            ItemVariationPrice[]
+  itemVariationLogs ItemVariationLog[]
+
+  purchaseRequestItems PurchaseRequestItem[]
+  purchaseOrderItems   PurchaseOrderItem[]
+  inventory            Inventory[]
+  inventoryAdjustments InventoryAdjustment[]
+  stockIssuanceItems   StockIssuanceItem[]
+  suppliers            SupplierItemVariation[]
+  inventoryMovements   InventoryMovement[]
+  serialNumbers        SerialNumber[]
+
+  prescriptionItems PrescriptionItem[] // Link to prescriptions
+
+  LocationInventory   LocationInventory[]
+  InventoryCountItem  InventoryCountItem[]
+  immunizationRecords ImmunizationRecord[]
+
+  @@map("item_variations")
+}
+
+model ItemVariationPrice {
+  id                Int       @id @default(autoincrement())
+  item_variation_id Int
+  price_type        PriceType
+  supplier_id       Int? // For SELLING prices (selling to suppliers)
+  lgu_id_ref        Int? // For PURCHASING prices scope at LGU
+  price             Decimal   @db.Decimal(15, 2)
+  effective_date    DateTime  @default(now())
+  expiry_date       DateTime? // Optional price expiration
+  is_active         Boolean   @default(true)
+  remarks           String?   @default("") @db.Text
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+  supplier      Supplier?     @relation(fields: [supplier_id], references: [id])
+
+  priceHistory ItemVariationPriceHistory[]
+
+  @@unique([item_variation_id, price_type, supplier_id, lgu_id_ref]) // One price per variation per type per entity
+  @@index([item_variation_id, price_type]) // Fast queries
+  @@index([effective_date, expiry_date]) // Date range queries
+  @@index([is_active]) // Active prices queries
+  @@map("item_variation_prices")
+}
+
+model ItemVariationPriceHistory {
+  id                      Int      @id @default(autoincrement())
+  item_variation_price_id Int
+  price                   Decimal  @db.Decimal(15, 2)
+  effective_date          DateTime @default(now())
+  created_by              String   @default("")
+  remarks                 String?  @default("") @db.Text
+  created_at              DateTime @default(now())
+  updated_at              DateTime @default(now())
+
+  itemVariationPrice ItemVariationPrice @relation(fields: [item_variation_price_id], references: [id])
+
+  @@map("item_variation_price_history")
+}
+
+model ItemVariationLog {
+  id                Int           @id @default(autoincrement())
+  item_variation_id Int
+  title             String        @default("")
+  message           String        @default("") @db.Text
+  created_at        DateTime      @default(now())
+  itemVariation     ItemVariation @relation(fields: [item_variation_id], references: [id])
+
+  @@map("item_variation_logs")
+}
+
+model SupplierItemVariation {
+  supplier_id       Int
+  item_variation_id Int
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now())
+
+  supplier      Supplier      @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id], onDelete: Cascade)
+
+  @@id([supplier_id, item_variation_id])
+  @@map("supplier_item_variations")
+}
+
+model SerialNumber {
+  id                          Int       @id @default(autoincrement())
+  serial                      String
+  item_variation_id           Int?
+  item_standard_id            Int?
+  inventory_id                Int?
+  stock_issuance_item_id      Int?
+  warehouse_receiving_item_id Int?
+  manufacture_date            DateTime?
+  remarks                     String?   @default("") @db.Text
+  has_been_issued             Boolean   @default(false)
+  is_sold                     Boolean   @default(false)
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @default(now())
+  deleted_at                  DateTime?
+
+  itemVariation          ItemVariation?          @relation(fields: [item_variation_id], references: [id])
+  itemStandard           ItemStandard?           @relation(fields: [item_standard_id], references: [id])
+  inventory              Inventory?              @relation(fields: [inventory_id], references: [id])
+  warehouseReceivingItem WarehouseReceivingItem? @relation(fields: [warehouse_receiving_item_id], references: [id])
+  stockIssuanceItem      StockIssuanceItem?      @relation(fields: [stock_issuance_item_id], references: [id])
+
+  @@map("serial_numbers")
+}
+
+enum TimeUnit {
+  MINUTES
+  HOURS
+  DAYS
+}
+
+enum Job {
+  NONE
+  PRODUCTION
+  DELIVERY
+}
+
+model Employee {
+  id             Int     @id @default(autoincrement())
+  lgu_id         Int
+  first_name     String
+  middle_name    String?
+  last_name      String
+  suffix         String?
+  contact_number String?
+  email          String?
+  job            Job
+  employeeCode   String?
+
+  employeeId Int?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  logs EmployeeLog[]
+
+  @@unique([lgu_id, employeeId])
+  @@map("employees")
+}
+
+model EmployeeLog {
+  id          Int      @id @default(autoincrement())
+  employee_id Int
+  title       String
+  message     String   @default("") @db.Text
+  created_at  DateTime @default(now())
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("employee_logs")
+}
+
+model Location {
+  id         Int       @id @default(autoincrement())
+  name       String
+  remarks    String?   @default("") @db.Text
+  lgu_id     Int
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  locationLogs           LocationLog[]
+  WarehouseReceivingItem WarehouseReceivingItem[]
+  locationInventories    LocationInventory[]
+  inventoryAdjustments   InventoryAdjustment[]
+
+  @@map("locations")
+}
+
+model LocationLog {
+  id          Int      @id @default(autoincrement())
+  location_id Int
+  title       String
+  message     String   @db.Text
+  created_at  DateTime @default(now())
+  Location    Location @relation(fields: [location_id], references: [id])
+
+  @@map("location_logs")
+}
+
+model LocationInventory {
+  id                Int      @id @default(autoincrement())
+  location_id       Int
+  item_variation_id Int
+  quantity          Decimal  @default(0) @db.Decimal(30, 17)
+  lgu_id            Int
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  location      Location      @relation(fields: [location_id], references: [id])
+  itemVariation ItemVariation @relation(fields: [item_variation_id], references: [id])
+
+  @@unique([location_id, item_variation_id]) // ensures no duplicate records
+  @@map("location_inventory")
+}
+
+// Inventory Count Models
+model InventoryCount {
+  id              Int    @id @default(autoincrement())
+  reference_no    String
+  variance_status String @default("No Variance")
+
+  lgu_id     Int
+  details    String?  @default("") @map("remarks") @db.Text
+  created_by Int      @default(1)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  items          InventoryCountItem[]
+  logs           InventoryCountLog[]
+  variancePhotos InventoryCountVariancePhoto[]
+
+  @@unique([lgu_id, reference_no])
+  @@index([lgu_id])
+  @@index([lgu_id, created_by])
+  @@map("inventory_counts")
+}
+
+model InventoryCountItem {
+  id                 Int      @id @default(autoincrement())
+  inventory_count_id Int
+  item_variation_id  Int
+  recorded_quantity  Decimal  @default(0) @db.Decimal(30, 17)
+  actual_quantity    Decimal  @default(0) @db.Decimal(30, 17)
+  variance_quantity  Decimal  @default(0) @db.Decimal(30, 17)
+  has_variance       Boolean  @default(false)
+  created_at         DateTime @default(now())
+
+  inventoryCount InventoryCount @relation(fields: [inventory_count_id], references: [id], onDelete: Cascade)
+  itemVariation  ItemVariation  @relation(fields: [item_variation_id], references: [id])
+
+  @@index([inventory_count_id])
+  @@index([item_variation_id])
+  @@map("inventory_count_items")
+}
+
+model InventoryCountVariancePhoto {
+  id                 Int      @id @default(autoincrement())
+  inventory_count_id Int
+  photo_url          String
+  photo_key          String
+  uploaded_at        DateTime @default(now())
+
+  inventoryCount InventoryCount @relation(fields: [inventory_count_id], references: [id], onDelete: Cascade)
+
+  @@index([inventory_count_id])
+  @@map("inventory_count_variance_photos")
+}
+
+model InventoryCountLog {
+  id                 Int      @id @default(autoincrement())
+  inventory_count_id Int
+  title              String
+  message            String   @db.Text
+  created_at         DateTime @default(now())
+  created_by         Int?
+  lgu_id             Int
+
+  inventoryCount InventoryCount @relation(fields: [inventory_count_id], references: [id])
+
+  @@index([inventory_count_id])
+  @@index([lgu_id, created_by])
+  @@map("inventory_count_logs")
+}

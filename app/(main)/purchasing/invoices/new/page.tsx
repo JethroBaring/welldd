@@ -64,7 +64,7 @@ export default function NewPurchaseInvoicePage() {
   const selectedPo = useMemo(() => poList.find((p) => p.id === selectedPoId), [poList, selectedPoId]);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <Button
         variant="ghost"
         size="sm"

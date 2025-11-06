@@ -46,7 +46,7 @@ export default function ViewInventoryMovementPage() {
   const formatLabel = (str: string) => str?.replace(/_/g, " ").replace(/^./, (s) => s.toUpperCase());
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <button
         type="button"
         className="mb-4 inline-flex items-center text-sm px-3 py-2 rounded-md hover:bg-muted text-muted-foreground"

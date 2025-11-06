@@ -162,7 +162,7 @@ export default function PurchaseOrdersPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold">Purchase Orders</h1>

@@ -74,7 +74,7 @@ export default function LGUDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <Skeleton className="h-10 w-64 mb-4" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -102,7 +102,7 @@ export default function LGUDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <div>
         {currentRole === "super_admin" && (
           <Button

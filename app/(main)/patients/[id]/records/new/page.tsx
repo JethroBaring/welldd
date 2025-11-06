@@ -109,7 +109,7 @@ export default function NewMedicalRecordPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -117,7 +117,7 @@ export default function NewMedicalRecordPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <Button
         variant="ghost"
         size="sm"

@@ -112,7 +112,7 @@ export default function NewPurchaseOrderPage() {
   const totals = calculateTotals();
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <Button
         variant="ghost"
         size="sm"

@@ -185,7 +185,7 @@ export default function StockIssuancePage() {
   const canNext = page < totalPages;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold">Stock Issuance</h1>

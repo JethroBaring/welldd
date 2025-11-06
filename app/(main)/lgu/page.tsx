@@ -88,7 +88,7 @@ export default function LGUPage() {
   // Admin staff UX: show redirecting state
   if (isAdminStaff) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <Skeleton className="h-8 w-64 mb-2" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -97,7 +97,7 @@ export default function LGUPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <div>
           <Skeleton className="h-8 w-64 mb-2" />
           <Skeleton className="h-4 w-96" />
@@ -114,7 +114,7 @@ export default function LGUPage() {
   // Super admin continues below
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">LGU Management</h1>

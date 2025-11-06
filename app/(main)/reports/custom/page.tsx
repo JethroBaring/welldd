@@ -486,7 +486,7 @@ export default function CustomReportsPage() {
 
   if (currentStep === "start") {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Custom Report Builder</h1>
           <p className="text-muted-foreground text-lg">
@@ -557,7 +557,7 @@ export default function CustomReportsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       {renderStepIndicator()}
 
       {currentStep === "source" && (

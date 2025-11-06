@@ -161,7 +161,7 @@ export default function WarehouseReceivingPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
 
       {/* {pendingPOs.length > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

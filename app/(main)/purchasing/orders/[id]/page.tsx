@@ -84,7 +84,7 @@ export default function PurchaseOrderDetailPage() {
   const canApprove = permissions.canApprovePO && (order.status === "pending" || order.status === "draft");
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       <Button
         variant="ghost"
         size="sm"

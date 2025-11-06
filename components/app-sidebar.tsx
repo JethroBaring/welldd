@@ -23,14 +23,8 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuthStore } from "@/stores/authStore";
 import { UserRole } from "@/types/user";
 import Image from "next/image";
@@ -201,7 +195,8 @@ const navData = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+function SidebarInner() {
+  const { toggleSidebar } = useSidebar();
   const { currentRole } = useAuthStore();
   const validRoles = [
     "super_admin",
@@ -259,8 +254,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const filteredNavMain = filterNavByRole(navData.navMain);
 
+  const handleSidebarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      toggleSidebar();
+    }
+  };
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <>
       <SidebarHeader className="p-0 h-16 mt-6 mb-6">
         <a
           href="#"
@@ -286,12 +287,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </a>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent onClick={handleSidebarClick}>
         <NavMain items={filteredNavMain} />
       </SidebarContent>
       <SidebarFooter className="group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:pb-2">
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarFooter>
+    </>
+  );
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarInner />
     </Sidebar>
   );
 }

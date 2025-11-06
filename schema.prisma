@@ -45,6 +45,11 @@ model User {
   email          String    @unique
   password       String
   lgu_id         Int?
+  facility_id    Int?
+  position       String?   @default("")
+  department     String?   @default("")
+  is_active      Boolean   @default(true)
+  last_login     DateTime?
   created_at     DateTime  @default(now())
   updated_at     DateTime  @updatedAt
   deleted_at     DateTime?
@@ -912,16 +917,15 @@ model PrescriptionItem {
 // LGU Management (Missing from original schema but needed for navData)
 model LGU {
   id                Int       @id @default(autoincrement())
-  lgu_name          String
-  lgu_type          String // "province", "city", "municipality", "barangay"
-  province          String?   @default("")
-  city_municipality String?   @default("")
-  barangay          String?   @default("")
+  code              String    @unique
+  name              String
+  region            String
+  province          String    @default("")
+  municipality      String    @default("")
   address           String    @default("")
   contact_number    String?   @default("")
   email             String?   @default("")
-  mayor_name        String?   @default("")
-  mayor_contact     String?   @default("")
+  is_active         Boolean   @default(true)
   created_by        Int       @default(1)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @default(now())
@@ -935,6 +939,7 @@ model LGU {
   stockIssuanceMovementsAsTarget StockIssuanceMovement[] @relation("TargetLGU")
 
   barangays Barangay[]
+  facilities Facility[]
 
   @@map("lgus")
 }
@@ -944,6 +949,7 @@ model Barangay {
   lgu_id     Int
   name       String
   code       String?  @default("")
+  zip_code   String?  @default("")
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
 
@@ -979,6 +985,45 @@ model LGUContact {
   lgu LGU @relation(fields: [lgu_id], references: [id])
 
   @@map("lgu_contacts")
+}
+
+// Facility Management
+model Facility {
+  id              Int       @id @default(autoincrement())
+  lgu_id          Int
+  facility_code   String    @unique
+  name            String
+  type            String // "hospital", "clinic", "health_center", "pharmacy", "other"
+  address         String    @default("")
+  barangay        String    @default("")
+  phone           String    @default("")
+  email           String?   @default("")
+  beds            Int? // capacity
+  staff           Int? // capacity
+  operating_open  String?   @default("")
+  operating_close String?   @default("")
+  operating_days  String[]  @default([]) // Array of days
+  is_active       Boolean   @default(true)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now())
+  deleted_at      DateTime?
+
+  lgu          LGU           @relation(fields: [lgu_id], references: [id])
+  facilityLogs FacilityLog[]
+
+  @@map("facilities")
+}
+
+model FacilityLog {
+  id          Int      @id @default(autoincrement())
+  facility_id Int
+  title       String
+  message     String   @db.Text
+  created_at  DateTime @default(now())
+
+  facility Facility @relation(fields: [facility_id], references: [id])
+
+  @@map("facility_logs")
 }
 
 // Units and Measurements

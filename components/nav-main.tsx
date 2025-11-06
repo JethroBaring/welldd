@@ -73,16 +73,14 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     <PopoverTrigger asChild>
                       <SidebarMenuButton
                         isActive={isActive}
+                        tooltip={item.title}
                         className="group-data-[collapsible=icon]:overflow-visible"
                       >
                         <div className="relative flex size-full items-center justify-start">
                           {item.icon && <item.icon className="size-6!" />}
-                          <i
-                            aria-hidden
-                            className="pointer-events-none absolute -right-1 top-1/2 -translate-y-1/2 text-base leading-none text-sidebar-foreground/70"
-                          >
-                            &rsaquo;
-                          </i>
+                          <IconChevronRight
+                            className="pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-sidebar-foreground/70"
+                          />
                         </div>
                       </SidebarMenuButton>
                     </PopoverTrigger>

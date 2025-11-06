@@ -34,6 +34,7 @@ interface NavItem {
 export function NavMain({ items }: { items: NavItem[] }) {
   const [openItems, setOpenItems] = useState<string[]>([]);
   const [popoverOpen, setPopoverOpen] = useState<string | null>(null);
+  const [tooltipOpen, setTooltipOpen] = useState<string | null>(null);
   const pathname = usePathname();
   const { state } = useSidebar();
 
@@ -68,21 +69,35 @@ export function NavMain({ items }: { items: NavItem[] }) {
                 <SidebarMenuItem key={item.title}>
                   <Popover
                     open={popoverOpen === item.title}
-                    onOpenChange={(open) => setPopoverOpen(open ? item.title : null)}
+                    onOpenChange={(open) => {
+                      setPopoverOpen(open ? item.title : null);
+                      if (open) {
+                        setTooltipOpen(null);
+                      }
+                    }}
                   >
                     <PopoverTrigger asChild>
-                      <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={item.title}
-                        className="group-data-[collapsible=icon]:overflow-visible"
+                      <div
+                        onMouseEnter={() => {
+                          if (popoverOpen !== item.title) {
+                            setTooltipOpen(item.title);
+                          }
+                        }}
+                        onMouseLeave={() => setTooltipOpen(null)}
                       >
-                        <div className="relative flex size-full items-center justify-start">
-                          {item.icon && <item.icon className="size-6!" />}
-                          <IconChevronRight
-                            className="pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-sidebar-foreground/70"
-                          />
-                        </div>
-                      </SidebarMenuButton>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          tooltip={popoverOpen === item.title ? undefined : (tooltipOpen === item.title ? item.title : undefined)}
+                          className="group-data-[collapsible=icon]:overflow-visible"
+                        >
+                          <div className="relative flex size-full items-center justify-start">
+                            {item.icon && <item.icon className="size-6!" />}
+                            <IconChevronRight
+                              className="pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-sidebar-foreground/70"
+                            />
+                          </div>
+                        </SidebarMenuButton>
+                      </div>
                     </PopoverTrigger>
                     <PopoverContent side="right" align="start" sideOffset={16} className="w-56 p-2">
                       <div className="text-sm font-medium mb-2">{item.title}</div>

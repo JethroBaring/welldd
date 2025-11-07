@@ -305,7 +305,7 @@ export default function StockIssuanceReceivingPage() {
                             {issVisibleCols.action && (
                               <TableCell className="text-center pr-4">
                                 <Link href={`/inventory/issuance-receiving/new?iss=${r.id}`}>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Receive Issuance">
+                                  <Button variant="noHover" size="icon" className="h-8 w-8" aria-label="Receive Issuance">
                                     <PackageOpen className="h-4 w-4" />
                                     <span className="sr-only">Receive Issuance</span>
                                   </Button>

@@ -94,7 +94,7 @@ export default function SupplierDetailPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{supplier.name}</h1>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="noHover" size="icon" className="h-8 w-8">
               <Pencil className="h-4 w-4" />
             </Button>
           </div>

@@ -248,7 +248,7 @@ export default function InventoryWarehouseReceivingPage() {
                             {poVisibleCols.action && (
                               <TableCell className="text-center pr-4">
                                 <Link href={`/purchasing/receiving/new?po=${po.id}`}>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Start Receiving">
+                                  <Button variant="noHover" size="icon" className="h-8 w-8" aria-label="Start Receiving">
                                     <PackageOpen className="h-4 w-4" />
                                     <span className="sr-only">Start Receiving</span>
                                   </Button>

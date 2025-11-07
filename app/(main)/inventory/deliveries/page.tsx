@@ -328,7 +328,7 @@ export default function DeliveriesPage() {
                       {ifdVisible.action && (
                         <TableCell className="text-center pr-4">
                           <Link href={`/inventory/issuance/${r.id}`}>
-                            <Button variant="ghost" size="sm">View</Button>
+                            <Button variant="noHover" size="sm">View</Button>
                           </Link>
                         </TableCell>
                       )}
@@ -465,7 +465,7 @@ export default function DeliveriesPage() {
                       {dlvVisible.action && (
                         <TableCell className="text-center pr-4">
                           <Link href={`/inventory/deliveries/${r.id}`}>
-                            <Button variant="ghost" size="sm">View</Button>
+                            <Button variant="noHover" size="sm">View</Button>
                           </Link>
                         </TableCell>
                       )}

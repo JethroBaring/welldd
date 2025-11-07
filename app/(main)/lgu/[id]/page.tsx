@@ -118,7 +118,7 @@ export default function LGUDetailPage() {
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           {lgu.name}
           {canEdit && (
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="noHover" size="icon" className="h-8 w-8">
               <Pencil className="h-4 w-4" />
             </Button>
           )}
@@ -262,7 +262,7 @@ export default function LGUDetailPage() {
                         </TableCell>
                         <TableCell>
                           {canEdit && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="noHover" size="icon" className="h-8 w-8">
                               <Pencil className="h-4 w-4" />
                             </Button>
                           )}

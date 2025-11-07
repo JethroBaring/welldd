@@ -259,7 +259,7 @@ export default function PatientDetailPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Link href={`/patients/${patient.id}/records/${record.id}`}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="noHover" size="icon" className="h-8 w-8">
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View medical record</span>
                         </Button>

@@ -337,7 +337,7 @@ export default function StockIssuancePage() {
                         onClick={e => e.stopPropagation()}
                       >
                         <Link href={`/inventory/issuance/${r.id}`}>
-                          <Button variant="ghost" size="sm">View</Button>
+                          <Button variant="noHover" size="sm">View</Button>
                         </Link>
                       </TableCell>
                     )}

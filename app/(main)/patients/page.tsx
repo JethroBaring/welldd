@@ -241,13 +241,13 @@ export default function PatientsPage() {
                     <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/patients/${patient.id}/edit`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="noHover" size="icon" className="h-8 w-8">
                             <Edit className="h-4 w-4" />
                             <span className="sr-only">Edit patient</span>
                           </Button>
                         </Link>
                         <Button
-                          variant="ghost"
+                          variant="noHover"
                           size="icon"
                           className="h-8 w-8 text-destructive hover:text-destructive"
                           onClick={e => {

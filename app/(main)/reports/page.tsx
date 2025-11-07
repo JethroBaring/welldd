@@ -434,7 +434,7 @@ export default function ReportsPage() {
                               PDF
                             </Button>
                             <Link href={`/${report.type === "inventory" ? "reports/inventory" : report.type === "patient" ? "reports/medical" : "reports/integrated"}`}>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="noHover" size="sm">
                                 <ArrowRight className="h-4 w-4" />
                               </Button>
                             </Link>

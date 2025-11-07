@@ -608,7 +608,7 @@ export default function UsersPage() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button
-                            variant="ghost"
+                            variant="noHover"
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => openEditDialog(user)}
@@ -622,14 +622,14 @@ export default function UsersPage() {
                             }
                           />
                           <Button
-                            variant="ghost"
+                            variant="noHover"
                             size="sm"
                             onClick={() => handleResetPassword(user)}
                           >
                             Reset Password
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="noHover"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive"
                             onClick={() => handleDeleteUser(user.id)}

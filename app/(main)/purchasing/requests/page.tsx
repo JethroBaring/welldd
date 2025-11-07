@@ -320,13 +320,13 @@ export default function PurchaseRequestsPage() {
                       <TableCell className="text-right pr-4">
                         <div className="flex items-center justify-center gap-2">
                           <Link href={`/purchasing/requests/${request.id}/edit`} onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                            <Button variant="noHover" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                               <Edit className="h-4 w-4" />
                               <span className="sr-only">Edit request</span>
                             </Button>
                           </Link>
                           <Button
-                            variant="ghost"
+                            variant="noHover"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive"
                             onClick={(e) => {

@@ -278,7 +278,7 @@ function SidebarTrigger({
         <Button
             data-sidebar='trigger'
             data-slot='sidebar-trigger'
-            variant='ghost'
+            variant='noHover'
             size='icon'
             onClick={(event) => {
                 onClick?.(event);

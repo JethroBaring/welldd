@@ -1,7 +1,7 @@
 "use client";
 
 import { IconCirclePlusFilled, IconMail, IconChevronRight, type Icon } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,11 @@ export function NavMain({ items }: { items: NavItem[] }) {
   const [openItems, setOpenItems] = useState<string[]>([]);
   const [popoverOpen, setPopoverOpen] = useState<string | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState<string | null>(null);
+  const [activeItemRect, setActiveItemRect] = useState<{
+    top: number;
+    height: number;
+  } | null>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
   const pathname = usePathname();
   const { state } = useSidebar();
 
@@ -54,10 +59,38 @@ export function NavMain({ items }: { items: NavItem[] }) {
     return subitems.some(subItem => isPathActive(subItem.url));
   };
 
+  useEffect(() => {
+    if (!menuRef.current) return;
+
+    const activeButton = menuRef.current.querySelector(
+      '[data-active="true"]'
+    ) as HTMLElement;
+
+    if (activeButton && menuRef.current) {
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+
+      setActiveItemRect({
+        top: buttonRect.top - menuRect.top,
+        height: buttonRect.height,
+      });
+    }
+  }, [pathname, openItems, state]);
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu className=" gap-3">
+        <SidebarMenu className=" gap-3" ref={menuRef}>
+          {/* Floating highlight indicator */}
+          {activeItemRect && (
+            <div
+              className="absolute left-0 right-0 bg-sidebar-accent rounded-md pointer-events-none transition-all duration-300 ease-in-out"
+              style={{
+                transform: `translateY(${activeItemRect.top}px)`,
+                height: `${activeItemRect.height}px`,
+              }}
+            />
+          )}
           {items.map((item) => {
             const hasSubItems = item.items && item.items.length > 0;
             const isOpen = openItems.includes(item.title);
@@ -88,7 +121,10 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         <SidebarMenuButton
                           isActive={isActive}
                           tooltip={popoverOpen === item.title ? undefined : (tooltipOpen === item.title ? item.title : undefined)}
-                          className="group-data-[collapsible=icon]:overflow-visible"
+                          className={cn(
+                            "group-data-[collapsible=icon]:overflow-visible relative z-10",
+                            isActive && "bg-transparent"
+                          )}
                         >
                           <div className="relative flex size-full items-center justify-start">
                             {item.icon && <item.icon className="size-6!" />}
@@ -130,6 +166,10 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     onClick={hasSubItems ? () => toggleItem(item.title) : undefined}
                     tooltip={item.title}
                     isActive={isActive && !hasSubItems}
+                    className={cn(
+                      "relative z-10",
+                      (isActive && !hasSubItems) && "bg-transparent"
+                    )}
                   >
                     {hasSubItems ? (
                       <div className="flex items-center gap-2 w-full">
@@ -159,7 +199,15 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   <SidebarMenuSub>
                     {item.items!.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild size="sm" isActive={isPathActive(subItem.url)}>
+                        <SidebarMenuSubButton
+                          asChild
+                          size="sm"
+                          isActive={isPathActive(subItem.url)}
+                          className={cn(
+                            "relative z-10",
+                            isPathActive(subItem.url) && "bg-transparent"
+                          )}
+                        >
                           <Link href={subItem.url}>
                             <span className="pl-2">{subItem.title}</span>
                           </Link>

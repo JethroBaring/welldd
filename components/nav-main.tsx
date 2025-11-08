@@ -108,7 +108,6 @@ export function NavMain({ items }: { items: NavItem[] }) {
   }, []);
 
   useEffect(() => {
-    // Initial measurement on dependency change.
     updateActiveRect();
 
     const menuEl = menuRef.current;
@@ -128,7 +127,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
       if (observedActiveElRef.current && observedActiveElRef.current !== activeEl) {
         try {
           resizeObserverRef.current.unobserve(observedActiveElRef.current);
-        } catch {}
+        } catch { }
       }
       resizeObserverRef.current.observe(activeEl);
       observedActiveElRef.current = activeEl;
@@ -142,24 +141,22 @@ export function NavMain({ items }: { items: NavItem[] }) {
     }
 
     return () => {
-      // Cleanup on effect re-run or unmount
       if (resizeObserverRef.current) {
         if (menuEl) {
           try {
             resizeObserverRef.current.unobserve(menuEl);
-          } catch {}
+          } catch { }
         }
         if (observedActiveElRef.current) {
           try {
             resizeObserverRef.current.unobserve(observedActiveElRef.current);
-          } catch {}
+          } catch { }
           observedActiveElRef.current = null;
         }
       }
     };
   }, [pathname, openItems, state, updateActiveRect]);
 
-  // Smoothly track width/left during collapsed/expanded transitions to avoid lag.
   useEffect(() => {
     let rafId: number | null = null;
     let start = 0;
@@ -181,7 +178,6 @@ export function NavMain({ items }: { items: NavItem[] }) {
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu className=" gap-3" ref={menuRef}>
-          {/* Floating highlight indicator */}
           {activeItemRect && (
             <div
               className="absolute bg-sidebar-accent rounded-md pointer-events-none transition-[transform,height] duration-200 ease-out z-0"
@@ -197,7 +193,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
             const hasSubItems = item.items && item.items.length > 0;
             const isOpen = openItems.includes(item.title);
             const isActive = isPathActive(item.url) || hasActiveSubItem(item.items);
-            
+
 
             if (hasSubItems && isCollapsed) {
               return (

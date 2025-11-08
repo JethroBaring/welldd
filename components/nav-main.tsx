@@ -1,7 +1,7 @@
 "use client";
 
 import { IconCirclePlusFilled, IconMail, IconChevronRight, type Icon } from "@tabler/icons-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -37,9 +37,14 @@ export function NavMain({ items }: { items: NavItem[] }) {
   const [tooltipOpen, setTooltipOpen] = useState<string | null>(null);
   const [activeItemRect, setActiveItemRect] = useState<{
     top: number;
+    left: number;
+    width: number;
     height: number;
   } | null>(null);
   const menuRef = useRef<HTMLUListElement>(null);
+  const activeElRef = useRef<HTMLElement | null>(null);
+  const menuResizeObserverRef = useRef<ResizeObserver | null>(null);
+  const activeResizeObserverRef = useRef<ResizeObserver | null>(null);
   const pathname = usePathname();
   const { state } = useSidebar();
 
@@ -59,23 +64,96 @@ export function NavMain({ items }: { items: NavItem[] }) {
     return subitems.some(subItem => isPathActive(subItem.url));
   };
 
-  useEffect(() => {
-    if (!menuRef.current) return;
+  const updateActiveRect = useCallback(() => {
+    const menuEl = menuRef.current;
+    if (!menuEl) return;
 
-    const activeButton = menuRef.current.querySelector(
-      '[data-active="true"]'
-    ) as HTMLElement;
+    // Prefer active submodule button when present, otherwise fallback to main button.
+    const subActive = menuEl.querySelector('[data-sidebar="menu-sub-button"][data-active="true"]') as HTMLElement | null;
+    const mainActive = menuEl.querySelector('[data-sidebar="menu-button"][data-active="true"]') as HTMLElement | null;
+    const activeEl = subActive ?? mainActive;
+    activeElRef.current = activeEl;
 
-    if (activeButton && menuRef.current) {
-      const menuRect = menuRef.current.getBoundingClientRect();
-      const buttonRect = activeButton.getBoundingClientRect();
-
-      setActiveItemRect({
-        top: buttonRect.top - menuRect.top,
-        height: buttonRect.height,
-      });
+    if (!activeEl) {
+      setActiveItemRect(null);
+      return;
     }
-  }, [pathname, openItems, state]);
+
+    const menuRect = menuEl.getBoundingClientRect();
+    const buttonRect = activeEl.getBoundingClientRect();
+
+    setActiveItemRect({
+      top: buttonRect.top - menuRect.top,
+      left: buttonRect.left - menuRect.left,
+      width: buttonRect.width,
+      height: buttonRect.height,
+    });
+  }, []);
+
+  useEffect(() => {
+    // Initial measurement on dependency change.
+    updateActiveRect();
+
+    const menuEl = menuRef.current;
+    const activeEl = activeElRef.current;
+
+    // Observe container size changes (e.g., sidebar toggling transitions).
+    if (menuEl && !menuResizeObserverRef.current) {
+      menuResizeObserverRef.current = new ResizeObserver(() => {
+        updateActiveRect();
+      });
+      menuResizeObserverRef.current.observe(menuEl);
+    }
+
+    // Observe active element changes in width/height during transitions.
+    if (activeEl) {
+      if (activeResizeObserverRef.current) {
+        activeResizeObserverRef.current.disconnect();
+        activeResizeObserverRef.current = null;
+      }
+      activeResizeObserverRef.current = new ResizeObserver(() => {
+        updateActiveRect();
+      });
+      activeResizeObserverRef.current.observe(activeEl);
+
+      // As a fallback, also listen for transitionend on the active element.
+      const onTransitionEnd = () => updateActiveRect();
+      activeEl.addEventListener('transitionend', onTransitionEnd);
+
+      return () => {
+        activeEl.removeEventListener('transitionend', onTransitionEnd);
+      };
+    }
+
+    return () => {
+      // Cleanup observers when dependencies change or component unmounts.
+      if (menuResizeObserverRef.current) {
+        menuResizeObserverRef.current.disconnect();
+        menuResizeObserverRef.current = null;
+      }
+      if (activeResizeObserverRef.current) {
+        activeResizeObserverRef.current.disconnect();
+        activeResizeObserverRef.current = null;
+      }
+    };
+  }, [pathname, openItems, state, updateActiveRect]);
+
+  // Smoothly track width/left during collapsed/expanded transitions to avoid lag.
+  useEffect(() => {
+    let rafId: number | null = null;
+    let start = 0;
+    const tick = (ts: number) => {
+      if (!start) start = ts;
+      updateActiveRect();
+      if (ts - start < 240) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [state, updateActiveRect]);
 
   return (
     <SidebarGroup>
@@ -84,10 +162,12 @@ export function NavMain({ items }: { items: NavItem[] }) {
           {/* Floating highlight indicator */}
           {activeItemRect && (
             <div
-              className="absolute left-0 right-0 bg-sidebar-accent rounded-md pointer-events-none transition-all duration-300 ease-in-out"
+              className="absolute bg-sidebar-accent rounded-md pointer-events-none transition-[transform,height] duration-200 ease-out z-0"
               style={{
-                transform: `translateY(${activeItemRect.top}px)`,
+                transform: `translate(${activeItemRect.left}px, ${activeItemRect.top}px)`,
                 height: `${activeItemRect.height}px`,
+                width: `${activeItemRect.width}px`,
+                willChange: 'transform, height',
               }}
             />
           )}
@@ -165,7 +245,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     asChild={!hasSubItems}
                     onClick={hasSubItems ? () => toggleItem(item.title) : undefined}
                     tooltip={item.title}
-                    isActive={isActive && !hasSubItems}
+                    isActive={isActive}
                     className={cn(
                       "relative z-10",
                       (isActive && !hasSubItems) && "bg-transparent"
